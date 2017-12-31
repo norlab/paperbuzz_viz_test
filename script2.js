@@ -3,8 +3,7 @@ d3.json("https://api.paperbuzz.org/v0/doi/10.1371/journal.pmed.0020124", functio
     
     var twitterevents = [],
         twittereventsdates = [];
-        //height = 200,
-        //width = 500;
+
     
             for (var i = 0; i<d.altmetrics_sources[1].events_count_by_day.length; i++) {
                 twitterevents.push(d.altmetrics_sources[1].events_count_by_day[i].count);
@@ -16,7 +15,6 @@ d3.json("https://api.paperbuzz.org/v0/doi/10.1371/journal.pmed.0020124", functio
             console.log(twitterevents.length);
             console.log(twittereventsdates.length);
 
-    //var margin = {left:50,right:50,top:40,bottom:0};
 
     var margin = {top: 20, right: 20, bottom: 70, left: 40},
             width = 600 - margin.left - margin.right,
@@ -36,9 +34,6 @@ d3.json("https://api.paperbuzz.org/v0/doi/10.1371/journal.pmed.0020124", functio
 
     console.log(d3.extent(twittereventsdates, function(d){ return parseDate(d); }))
 
-    console.log(y(1));
-    console.log(y(4));
-    console.log(y(2));
 
     var yAxis = d3.axisLeft(y);
     var xAxis = d3.axisBottom(x);
