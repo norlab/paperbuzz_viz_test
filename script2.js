@@ -62,7 +62,7 @@ d3.json("https://api.paperbuzz.org/v0/doi/10.1371/journal.pmed.0020124", functio
             .rangeRound([height,0]);
 
         var x = d3.scaleTime()
-            .domain(d3.extent(eventdatea, function(d){ return parseDate(d); }))
+            .domain(d3.extent(eventdate, function(d){ return parseDate(d); }))
             .range([0,width])
             .nice(d3.timeMonth);
 
