@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+	<head>
+		<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+		<script type="text/javascript" src="js/bootstrap.tooltip.min.js"></script>
+
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+
+		<style>
+		body {
+			width: 800px;
+			font-family: arial
+		}
+		</style>
+
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.tooltip.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/almviz.css" />
+		<link rel="stylesheet" type="text/css" href="css/jqueryUi.css" />
+    </head>
+	<body>
+	<h1>Paperbuzz Visualizations</h1>
+
+	<div id="paperbuzz"><div id="loading">Metrics Loading...</div></div>
+
+    <script type="text/javascript" src="script5.js"></script>
+	
+    <script type="text/javascript">
+		options = {
+					baseUrl: 'http://pkp-alm.lib.sfu.ca',
+					minItemsToShowGraph: {
+							minEventsForYearly: 6,
+							minEventsForMonthly: 6,
+							minEventsForDaily: 6,
+							minYearsForYearly: 6,
+							minMonthsForMonthly: 6,
+							minDaysForDaily: 6
+							}, 
+					showTitle: true,
+					
+				}
+	
+			d3.json('https://api.paperbuzz.org/v0/doi/10.1371/journal.pone.0000308', function(data) {
+				options.paperbuzzStatsJson = data
+				var paperbuzzviz = new PaperbuzzViz(options);
+				paperbuzzviz.initViz();
+		});
+	</script>
+    <div id="built-with"><p>Built with <a href="http://d3js.org/">d3.js</a></p></div>
+	</body>
+</html>
