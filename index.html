@@ -6,21 +6,27 @@
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <title>Visualization</title>
-            <link rel="stylesheet" type="text/css" href="style.css" >
+            <link rel="stylesheet" type="text/css" href="css/almviz.css" >
+            <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
             <script src="https://d3js.org/d3.v4.min.js"></script>
            
           </head>
+         
           <body>
-        
-            <div class="container">
-        
-              <h2>Paperbuzz Events</h2>
-        
-              <div id="viz"></div>
-        
-            </div><!-- container -->
+            <h1>Paperbuzz Visualizations</h1>
             
-           
-            <script src="script2.js"></script>
+            
+            <div id="paperbuzz"><div id="loading">Metrics Loading...</div></div>
+          
+              <script type="text/javascript" src="script6.js"></script>
+            
+              <script type="text/javascript">
+                  
+                d3.json("https://api.paperbuzz.org/v0/doi/10.1371/journal.pmed.0020124", function(d) {
+                  paperbuzzStatsJson = d;
+                  paperbuzz.initViz();
+              });
+            </script>
+              <div id="built-with"><p>Built with <a href="http://d3js.org/">d3.js</a></p></div>
           </body>
         </html>
