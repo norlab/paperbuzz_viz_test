@@ -138,7 +138,9 @@ paperbuzz.initViz = function() {
             .range([0,width])
             .nice(d3.timeMonth);
 
-        var yAxis = d3.axisLeft(y);
+        var yAxis = d3.axisLeft(y)
+                .tickValues([d3.max(y.domain())]);
+	    
         var xAxis = d3.axisBottom(x);
 
         var svg = d3.select('#paperbuzz').append('svg')
