@@ -1,5 +1,5 @@
 paperbuzz.initViz = function() {
-
+    console.log(window.innerWidth);
     
     var d = paperbuzzStatsJson;
     var parseDate = d3.timeParse('%Y-%m-%d');
@@ -96,7 +96,31 @@ paperbuzz.initViz = function() {
                 newEDyearlyArray.push(event_dates_by_year[y])}
 		    y++;
         }
-        // console.log(newECdailyArray);
+
+        var dailyArray=[]
+        for (i in newECdailyArray){
+	            var val = {};
+                val['date'] = newEDdailyArray[i];
+                val['value'] = newECdailyArray[i];
+                dailyArray.push(val)
+        }
+
+        var monthlyArray=[]
+        for (i in newECmonthlyArray){
+	            var val = {};
+                val['date'] = newEDmonthlyArray[i];
+                val['value'] = newECmonthlyArray[i];
+                monthlyArray.push(val)
+        }
+
+        var yearlyArray=[]
+        for (i in newECyearlyArray){
+	            var val = {};
+                val['date'] = newEDyearlyArray[i];
+                val['value'] = newECyearlyArray[i];
+                yearlyArray.push(val)
+        }
+
         
         var tooltip = d3.select("body").append("div")
                         .attr("class", "toolTip")
@@ -106,6 +130,7 @@ paperbuzz.initViz = function() {
         var y = d3.scaleLinear()
             .domain([0, d3.max(newECdailyArray)])
             .rangeRound([height,0]);
+
 
         // Use the higher-level event_dates_by_day array for the min and max x-values. This will make all x-axes consistent with each other
         var x = d3.scaleTime()
@@ -122,24 +147,24 @@ paperbuzz.initViz = function() {
 
         var ChartGroup = svg.append("g")
                     .attr("transform","translate("+margin.left+","+margin.top+")")
-
+        
         ChartGroup.selectAll('rect')
-                .data(newECdailyArray)
+                .data(dailyArray)
                 .enter().append('rect')
                     .attr('width', 5)
-                    .attr("height", function(d) { return height - y(d); })
+                    .attr("height", function(d) { return height - y(d.value); })
                     .attr('x', function(d, i) {
-                        return x(parseDate(newEDdailyArray[i]));
+                        return x(parseDate(d.date));
                     })
-                    .attr("y", function(d) { return y(d); })
+                    .attr("y", function(d) { return y(d.value); })
                     .attr('fill', "blue")
                    .on("mousemove", function(d){
                         tooltip
                           .style("opacity","1")
                           .style("left", d3.event.pageX - 50 + "px")
                           .style("top", d3.event.pageY - 70 + "px")
-                          .style("display", "inline-block")
-                          .html("count: " + d + "<br>" + "date: ");
+                          .style("display", "inline-block");
+                          tooltip.html("count: " + d.value + "<br>" + "date: " + d.date);
                     })
                     .on("mouseout", function(d){ tooltip.style("display", "none");});
 
