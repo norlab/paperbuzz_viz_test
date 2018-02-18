@@ -21,11 +21,32 @@
               <script type="text/javascript" src="script6.js"></script>
             
               <script type="text/javascript">
-                  
-                d3.json("https://api.paperbuzz.org/v0/doi/10.1371/journal.pmed.0020124", function(d) {
-                  paperbuzzStatsJson = d;
-                  paperbuzz.initViz();
-              });
+                  options = {
+                      baseUrl: 'http://pkp-alm.lib.sfu.ca',
+                      minItemsToShowGraph: {
+                          minEventsForYearly: 6,
+                          minEventsForMonthly: 6,
+                          minEventsForDaily: 6,
+                          minYearsForYearly: 6,
+                          minMonthsForMonthly: 6,
+                          minDaysForDaily: 6
+                          }, 
+                      showTitle: true,
+                      
+                    }
+              
+                  d3.json('https://api.paperbuzz.org/v0/doi/10.1371/journal.pone.0000308', function(d) {
+                    options.paperbuzzStatsJson = d
+                    // var paperbuzz = new PaperbuzzViz(options);
+                    paperbuzz.initViz(options);
+                });
+
+
+
+              //   d3.json("https://api.paperbuzz.org/v0/doi/10.1371/journal.pmed.0020124", function(d) {
+              //     paperbuzzStatsJson = d;
+              //     paperbuzz.initViz();
+              // });
             </script>
               <div id="built-with"><p>Built with <a href="http://d3js.org/">d3.js</a></p></div>
           </body>

@@ -1,7 +1,11 @@
-paperbuzz.initViz = function() {
+var paperbuzz = {}
+
+paperbuzz.initViz = function(options) {
+    console.log("IM here")
+    console.log(options)
     console.log(window.innerWidth);
     
-    var d = paperbuzzStatsJson;
+    var d = options.paperbuzzStatsJson;
     var parseDate = d3.timeParse('%Y-%m-%d');
 
     var vizDiv = d3.select("#paperbuzz");
@@ -143,7 +147,12 @@ paperbuzz.initViz = function() {
 	    
         var xAxis = d3.axisBottom(x);
 
-        var svg = d3.select('#paperbuzz').append('svg')
+        var graphContainer = d3.select('#paperbuzz').append('div');
+        graphContainer.attr("class", "alm-category-row")
+            .attr("style", "width: 100%; overflow: hidden;")
+            .attr("id", "category-" + a);
+
+        var svg = graphContainer.append('svg')
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom);
 
@@ -199,6 +208,4 @@ paperbuzz.initViz = function() {
                 .text("Date"); 
         
     a++;}
- 
-
 };
