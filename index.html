@@ -1,24 +1,50 @@
-<DOCTYPE html>
-        <!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <meta charset="utf-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title>Visualization</title>
-            <link rel="stylesheet" type="text/css" href="css/almviz.css" >
-            <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
-            <script src="https://d3js.org/d3.v4.min.js"></script>
-           
-          </head>
-         
-          <body>
-            <h1>Paperbuzz Visualizations</h1>
-            
-            
-            <div id="paperbuzz"><div id="loading">Metrics Loading...</div></div>
-          
-              <script type="text/javascript" src="script6.js"></script>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Dashboard Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <!-- Dependendancies for bootstrap
+              see: https://getbootstrap.com/ -->
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+      feather.replace()
+    </script>
+
+    <style>
+      .box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
+      div.tooltip {
+          position: absolute;
+          text-align: center;
+          width: 80px;
+          height: 28px;
+          padding: 2px;
+          font: 9px sans-serif;
+          background: lightsteelblue;
+          border: 0px;
+          border-radius: 8px;
+          pointer-events: none;
+        }
+    </style>
+
+    <!-- d3 -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+
+
+    <script type="text/javascript" src="script6.js"></script>
             
               <script type="text/javascript">
                   options = {
@@ -35,19 +61,63 @@
                       
                     }
               
-                  d3.json('https://api.paperbuzz.org/v0/doi/10.1371/journal.pone.0000308', function(d) {
+                  d3.json('https://api.paperbuzz.org/v0/doi/10.1371/journal.pmed.0020124', function(d) {
                     options.paperbuzzStatsJson = d
-                    // var paperbuzz = new PaperbuzzViz(options);
                     paperbuzz.initViz(options);
                 });
-
-
-
-              //   d3.json("https://api.paperbuzz.org/v0/doi/10.1371/journal.pmed.0020124", function(d) {
-              //     paperbuzzStatsJson = d;
-              //     paperbuzz.initViz();
-              // });
             </script>
-              <div id="built-with"><p>Built with <a href="http://d3js.org/">d3.js</a></p></div>
-          </body>
-        </html>
+
+  </head>
+
+  <body>
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Paperbuzz Visualizations</a>
+    </nav>
+
+    <div class="container-fluid">
+      
+      <!-- Example side navigation. -->
+      <!--
+      <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+              <span>Example Nav</span>
+            </h6>
+            <ul class="nav flex-column mb-2">
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Nav Link 1
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Nav Link 2
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Nav Link 3
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        --> <!-- Done with example side nav -->
+
+        <div class="container">
+
+          <div class="row" id="paperbuzz">
+            <!-- Loading message gets removed by script once the data is loaded -->
+            <h2 id="loading">Loading Data ... </h2>
+
+            <!-- Graph content gets inserted here by the script -->
+          </div>
+        </div> <!-- end container -->
+      </div>
+    </div>
+  </body>
+</html>
