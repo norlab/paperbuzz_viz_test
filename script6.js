@@ -132,6 +132,8 @@ paperbuzz.initViz = function(options) {
             console.log(minimums.minEventsForDaily);
             console.log(dailyArray.length >= minimums.minDaysForDaily);
             console.log(d3.max(newECdailyArray) >= minimums.minEventsForDaily);
+
+            
         if ((dailyArray.length >= minimums.minDaysForDaily) && (d3.max(newECdailyArray) >= minimums.minEventsForDaily)) {
             
             var div = d3.select("body").append("div")
