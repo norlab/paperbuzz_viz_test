@@ -8,6 +8,7 @@
             <title>Visualization</title>
             <link rel="stylesheet" type="text/css" href="css/almviz.css" >
             <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+            
             <script src="https://d3js.org/d3.v4.min.js"></script>
            
           </head>
@@ -24,18 +25,18 @@
                   options = {
                       baseUrl: 'http://pkp-alm.lib.sfu.ca',
                       minItemsToShowGraph: {
-                          minEventsForYearly: 6,
-                          minEventsForMonthly: 6,
-                          minEventsForDaily: 6,
-                          minYearsForYearly: 6,
-                          minMonthsForMonthly: 6,
-                          minDaysForDaily: 6
+                          minEventsForYearly: 2,
+                          minEventsForMonthly: 2,
+                          minEventsForDaily: 2,
+                          minYearsForYearly: 1,
+                          minMonthsForMonthly: 1,
+                          minDaysForDaily: 1
                           }, 
                       showTitle: true,
                       
                     }
               
-                  d3.json('https://api.paperbuzz.org/v0/doi/10.1371/journal.pone.0000308', function(d) {
+                  d3.json('https://api.paperbuzz.org/v0/doi/10.1371/journal.pmed.0020124', function(d) {
                     options.paperbuzzStatsJson = d
                     // var paperbuzz = new PaperbuzzViz(options);
                     paperbuzz.initViz(options);

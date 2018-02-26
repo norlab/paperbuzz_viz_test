@@ -1,17 +1,19 @@
 var paperbuzz = {}
 
 paperbuzz.initViz = function(options) {
-    console.log("IM here")
-    console.log(options)
-    console.log(window.innerWidth);
+    console.log(options);
     
     var d = options.paperbuzzStatsJson;
+    var minimums = options.minItemsToShowGraph;
     var parseDate = d3.timeParse('%Y-%m-%d');
+    var formatNumber = d3.format(",d");
 
     var vizDiv = d3.select("#paperbuzz");
     
+    // Remove the loading message
     vizDiv.select("#loading").remove();
 
+    // Add the title and link
     vizDiv.append("a")
             .attr('href', 'http://dx.doi.org/' + d.doi)
             .attr("class", "title")
@@ -62,12 +64,6 @@ paperbuzz.initViz = function(options) {
                     
          i++;
         }
-        
-    // console.log(source.length);
-    // console.log(source[0]);
-    // console.log(event_counts_by_day);
-    // console.log(event_dates_by_day);
-    // console.log(eventsource);
 
 
     // For each source in the source array, build new count and date arrays  and output the paperbuzz
@@ -125,87 +121,139 @@ paperbuzz.initViz = function(options) {
                 yearlyArray.push(val)
         }
 
-        
-        var tooltip = d3.select("body").append("div")
-                        .attr("class", "toolTip")
-                        .style("opacity","0")
-                        .style("position","absolute");
+        // Draw the visualization as per function
+        drawInitVis(d);
 
-        var y = d3.scaleLinear()
-            .domain([0, d3.max(newECdailyArray)])
-            .rangeRound([height,0]);
+        function drawInitVis(d) {
+            console.log(source[a]);
+            console.log(dailyArray.length);
+            console.log(minimums.minDaysForDaily);
+            console.log(d3.max(newECdailyArray));
+            console.log(minimums.minEventsForDaily);
+            console.log(dailyArray.length >= minimums.minDaysForDaily);
+            console.log(d3.max(newECdailyArray) >= minimums.minEventsForDaily);
+        if ((dailyArray.length >= minimums.minDaysForDaily) && (d3.max(newECdailyArray) >= minimums.minEventsForDaily)) {
+            
+            var div = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            var y = d3.scaleLinear()
+                .domain([0, d3.max(newECdailyArray)])
+                .rangeRound([height,0]);
 
 
-        // Use the higher-level event_dates_by_day array for the min and max x-values. This will make all x-axes consistent with each other
-        var x = d3.scaleTime()
-            .domain(d3.extent(event_dates_by_day, function(d){ return parseDate(d); }))
-            .range([0,width])
-            .nice(d3.timeMonth);
+            // Use the higher-level event_dates_by_day array for the min and max x-values. This will make all x-axes consistent with each other
+            var x = d3.scaleTime()
+                .domain(d3.extent(event_dates_by_day, function(d){ return parseDate(d); }))
+                .range([0,width])
+                .nice(d3.timeMonth);
 
-        var yAxis = d3.axisLeft(y)
-                .tickValues([d3.max(y.domain())]);
-	    
-        var xAxis = d3.axisBottom(x);
+            var yAxis = d3.axisLeft(y)
+                    .tickValues([d3.max(y.domain())]);
+            
+            var xAxis = d3.axisBottom(x);
 
-        var graphContainer = d3.select('#paperbuzz').append('div');
-        graphContainer.attr("class", "alm-category-row")
-            .attr("style", "width: 100%; overflow: hidden;")
-            .attr("id", "category-" + a);
+            var graphContainer = d3.select('#paperbuzz').append('div');
 
-        var svg = graphContainer.append('svg')
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom);
+            graphContainer.attr("class", "alm-category-row")
+                    .attr("style", "width: 100%; overflow: hidden;")
+                    .attr("id", "category-" + a);
 
-        var ChartGroup = svg.append("g")
-                    .attr("transform","translate("+margin.left+","+margin.top+")")
-        
-        ChartGroup.selectAll('rect')
-                .data(dailyArray)
-                .enter().append('rect')
-                    .attr('width', 5)
-                    .attr("height", function(d) { return height - y(d.value); })
-                    .attr('x', function(d, i) {
-                        return x(parseDate(d.date));
+            var svg = graphContainer.append('svg')
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom);
+
+            var ChartGroup = svg.append("g")
+                        .attr("transform","translate("+margin.left+","+margin.top+")")
+            
+            ChartGroup.selectAll('rect')
+            .data(dailyArray)
+            .enter().append('rect')
+                .attr('width', 5)
+                .attr("height", function(d) { return height - y(d.value); })
+                .attr('x', function(d, i) {
+                    return x(parseDate(d.date));
+                })
+                .attr("y", function(d) { return y(d.value); })
+                .attr('fill', "blue")
+                .on("mouseover", function(d) {
+                    div.transition()
+                    .duration(100)
+                    .style("opacity", .9)
+                    .style("left", d3.event.pageX - 50 + "px")
+                    .style("top", d3.event.pageY - 50 + "px");
+                    div.html("count: " + d.value + "<br>" + "date: " + d.date);
                     })
-                    .attr("y", function(d) { return y(d.value); })
-                    .attr('fill', "blue")
-                   .on("mousemove", function(d){
-                        tooltip
-                          .style("opacity","1")
-                          .style("left", d3.event.pageX - 50 + "px")
-                          .style("top", d3.event.pageY - 70 + "px")
-                          .style("display", "inline-block");
-                          tooltip.html("count: " + d.value + "<br>" + "date: " + d.date);
+                .on("mouseout", function(d) {
+                    div.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+                    });
+
+            ChartGroup.append('g')
+                    .attr("class", "axis y")
+                    .call(yAxis);
+
+            ChartGroup.append('g')
+                    .attr("class", "axis x")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x)
+                    .tickFormat(d3.timeFormat("%Y-%m-%d")))
+                    .selectAll("text")	
+                        .style("text-anchor", "end")
+                        .attr("dx", "-.8em")
+                        .attr("dy", ".15em")
+                        .attr("transform", "rotate(-65)");
+
+            ChartGroup.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0 - margin.left)
+                    .attr("x",0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text(source[a].toUpperCase() + " EVENT COUNT");
+            
+            ChartGroup.append("text")             
+                    .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top + 60) + ")")
+                    .style("text-anchor", "middle")
+                    .text("DATE");
+
+            ChartGroup.append("text")             
+                    .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top -200) + ")")
+                    .attr("font-size", "11px")
+                    .attr("fill", "red")
+                    .style("text-anchor", "middle")
+                    .text("TOTAL " + source[a].toUpperCase() + " EVENTS: " + d3.sum(dailyArray, function(d) { return d.value; }));
+                    
+            ChartGroup.append("text")
+                    .attr("transform", "translate(" + (width/1.3) + " ," + (height + margin.top + 60) + ")")    
+                    .attr("class", "legend")
+                    .style("fill", "steelblue")         
+                    .on("click", function(){
+                        var active   = blueLine.active ? false : true,
+                            newOpacity = active ? 0 : 1;
                     })
-                    .on("mouseout", function(d){ tooltip.style("display", "none");});
+                    .text("Monthly |");
 
-        ChartGroup.append('g')
-                .attr("class", "axis y")
-                .call(yAxis);
+            ChartGroup.append("text")
+                    .attr("transform", "translate(" + (width/1.115) + " ," + (height + margin.top + 60) + ")")    
+                    .attr("class", "legend")
+                    .style("fill", "steelblue")         
+                    .on("click", function(){
+                        // Determine if current line is visible
+                        var active   = blueLine.active ? false : true,
+                          newOpacity = active ? 0 : 1;
+                        // Hide or show the elements
+                        d3.select("#blueLine").style("opacity", newOpacity);
+                        d3.select("#blueAxis").style("opacity", newOpacity);
+                        // Update whether or not the elements are active
+                        blueLine.active = active;
+                    })
+                    .text("Yearly");
+                    
 
-        ChartGroup.append('g')
-                .attr("class", "axis x")
-                .attr("transform", "translate(0," + height + ")")
-                .call(d3.axisBottom(x)
-                .tickFormat(d3.timeFormat("%Y-%m-%d")))
-                .selectAll("text")	
-                    .style("text-anchor", "end")
-                    .attr("dx", "-.8em")
-                    .attr("dy", ".15em")
-                    .attr("transform", "rotate(-65)");
-
-        ChartGroup.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 0 - margin.left)
-                .attr("x",0 - (height / 2))
-                .attr("dy", "1em")
-                .style("text-anchor", "middle")
-                .text(source[a] + " Event Count");
-        
-        ChartGroup.append("text")             
-                .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top + 60) + ")")
-                .style("text-anchor", "middle")
-                .text("Date"); 
-        
+                    }
     a++;}
+                }
 };
