@@ -131,3 +131,10 @@ div.tooltip {
 	border-radius: 8px;
 	pointer-events: none;
   }
+
+  graphContainer div {
+	padding: 3px;
+	margin: 1px;
+	color: white;
+  }
+  

@@ -30,9 +30,9 @@ paperbuzz.initViz = function(options) {
         eventsource =[],
         eventsource_month = [],
         eventsource_year = [],
-        margin = {top: 20, right: 20, bottom: 90, left: 50},
+        margin = {top: 50, right: 20, bottom: 150, left: 50},
         width = 600 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom;
+        height = 400 - margin.top - margin.bottom;
 
 
         // Fill source array with sources found for specific doi
@@ -172,7 +172,7 @@ paperbuzz.initViz = function(options) {
             ChartGroup.selectAll('rect')
             .data(dailyArray)
             .enter().append('rect')
-                .attr('width', 5)
+                .attr('width', 3)
                 .attr("height", function(d) { return height - y(d.value); })
                 .attr('x', function(d, i) {
                     return x(parseDate(d.date));
@@ -217,12 +217,12 @@ paperbuzz.initViz = function(options) {
                     .text(source[a].toUpperCase() + " EVENT COUNT");
             
             ChartGroup.append("text")             
-                    .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top + 60) + ")")
+                    .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top + 30) + ")")
                     .style("text-anchor", "middle")
                     .text("DATE");
 
             ChartGroup.append("text")             
-                    .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top -200) + ")")
+                    .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top -250) + ")")
                     .attr("font-size", "11px")
                     .attr("fill", "red")
                     .style("text-anchor", "middle")
@@ -256,6 +256,7 @@ paperbuzz.initViz = function(options) {
                     
 
                     }
-    a++;}
+                }
+    a++;
                 }
 };
