@@ -68,6 +68,7 @@ paperbuzz.initViz = function(options) {
 
     // For each source in the source array, build new count and date arrays  and output the paperbuzz
     var a = 0;
+
     while (a < source.length) {
 	    var newECdailyArray = [];
         var newEDdailyArray = [];
@@ -224,7 +225,7 @@ paperbuzz.initViz = function(options) {
             ChartGroup.append("text")             
                     .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top -250) + ")")
                     .attr("font-size", "11px")
-                    .attr("fill", "red")
+                    .attr("fill", "blue")
                     .style("text-anchor", "middle")
                     .text("TOTAL " + source[a].toUpperCase() + " EVENTS: " + d3.sum(dailyArray, function(d) { return d.value; }));
                     
@@ -233,9 +234,7 @@ paperbuzz.initViz = function(options) {
                     .attr("class", "legend")
                     .style("fill", "steelblue")         
                     .on("click", function(){
-                        var active   = blueLine.active ? false : true,
-                            newOpacity = active ? 0 : 1;
-                    })
+                        })
                     .text("Monthly |");
 
             ChartGroup.append("text")
@@ -243,20 +242,11 @@ paperbuzz.initViz = function(options) {
                     .attr("class", "legend")
                     .style("fill", "steelblue")         
                     .on("click", function(){
-                        // Determine if current line is visible
-                        var active   = blueLine.active ? false : true,
-                          newOpacity = active ? 0 : 1;
-                        // Hide or show the elements
-                        d3.select("#blueLine").style("opacity", newOpacity);
-                        d3.select("#blueAxis").style("opacity", newOpacity);
-                        // Update whether or not the elements are active
-                        blueLine.active = active;
                     })
                     .text("Yearly");
-                    
 
                     }
                 }
-    a++;
-                }
+
+    a++;}
 };
