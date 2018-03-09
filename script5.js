@@ -26,11 +26,11 @@ function PaperbuzzViz(options) {
 
     // TODO: Fix to use parseDate
     // TODO: Fix to work when no pub date is available. Use earliest event
-    var year = data.metadata["published-online"]["date-parts"][0][0];
-    var month = data.metadata["published-online"]["date-parts"][0][1];
-    var day = data.metadata["published-online"]["date-parts"][0][2];
-    // var published_date = '2017-08-02'; // year+"-"+month+"-"+day;
-    var published_date = year+"-"+month+"-"+day;
+    // var year = data.metadata["published-online"]["date-parts"][0][0];
+    // var month = data.metadata["published-online"]["date-parts"][0][1];
+    // var day = data.metadata["published-online"]["date-parts"][0][2];
+    var published_date = '2017-08-02'; // year+"-"+month+"-"+day;
+    // var published_date = year+"-"+month+"-"+day;
 
     // extract publication date
     var pub_date = parseDate(published_date);
@@ -451,7 +451,16 @@ function PaperbuzzViz(options) {
         var yAxis = d3.axisLeft(viz.y)
                 .tickValues([d3.max(viz.y.domain())]);
         
-        var xAxis = d3.axisBottom(viz.x);
+        var ticks;
+        if (level == 'day') {
+            ticks = d3.timeDay.every(4);
+        } else if (level == 'month') {
+            ticks = d3.timeMonth.every(2);
+        } else {
+            ticks = d3.timeYear.every(1)
+        }
+        var xAxis = d3.axisBottom(viz.x)
+                        .ticks(ticks);
 
         //
         // The chart itself
