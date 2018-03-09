@@ -10,11 +10,6 @@ function PaperbuzzViz(options) {
     // in case a different version of jQuery is needed from the one globally defined
     $ = options.jQuery || $;
 
-    // Init data
-    var data = options.paperbuzzStatsJson;
-    var categories_ = options.categories;
-
-    console.log(data);
     // Init basic options
     var baseUrl_ = options.baseUrl;
     var hasIcon = options.hasIcon;
@@ -26,14 +21,19 @@ function PaperbuzzViz(options) {
     var showTitle = options.showTitle;
     var formatNumber_ = d3.format(",d");
     var parseDate = d3.timeParse('%Y-%m-%d');
+
+    var data = options.paperbuzzStatsJson;
+
+    // TODO: Fix to use parseDate
+    // TODO: Fix to work when no pub date is available. Use earliest event
     var year = data.metadata["published-online"]["date-parts"][0][0];
     var month = data.metadata["published-online"]["date-parts"][0][1];
     var day = data.metadata["published-online"]["date-parts"][0][2];
+    // var published_date = '2017-08-02'; // year+"-"+month+"-"+day;
     var published_date = year+"-"+month+"-"+day;
 
     // extract publication date
     var pub_date = parseDate(published_date);
-    console.log(pub_date);
 
     var vizDiv;
     // Get the Div where the viz should go (default to one with ID "paperbuzz')
@@ -49,24 +49,7 @@ function PaperbuzzViz(options) {
     // to track if any metrics have been found
     var metricsFound_;
 
-    var a = 0;
-        while (a < data.altmetrics_sources.length) {
-            sources[a] = data.altmetrics_sources[a].source_id;
-            a++;
-        }
-
-    // Fill eventcount, eventdate, and eventsources array with data from JSON call
-    var i = 0;
-    while (i < sources.length) {
-
-                for (var j = 0; j<data.altmetrics_sources[i].events_count_by_day.length; j++) {
-                                    eventcount.push(data.altmetrics_sources[i].events_count_by_day[j].count);
-                                    eventdate.push(data.altmetrics_sources[i].events_count_by_day[j].date);
-                                    eventsource.push(data.altmetrics_sources[i].source_id);
-                }
-                
-     i++;
-    }
+    sources = data.altmetrics_sources
 
      /**
      * Initialize the visualization.
@@ -85,9 +68,14 @@ function PaperbuzzViz(options) {
 
         // loop through categories
         sources.forEach(function(source) {
-            addSource_(vizDiv, source, data);
+            metricsFound_ = true;
+            addSourceRow_(vizDiv, source);
         });
 
+        // add a tooltip: this will be moved around when going in/out of a bar in a graph
+        vizDiv.append("div")
+            .attr("id", "paperbuzzTooltip")
+            .style("opacity", 0);
 
         if (!metricsFound_) {
             vizDiv.append("p")
@@ -103,61 +91,144 @@ function PaperbuzzViz(options) {
      * @param {Object} data Statistics.
      * @return {JQueryObject|boolean}
      */
-    var addSource_ = function(canvas, source, data) {
-        var $sourceRow = false;
-
-        // Loop through sources to add statistics data to the category.
-        sources.forEach(function(source) {
-          
-                // Only add the category row the first time
-                if (!$sourceRow) {
-                    $sourceRow = getSourceRow_(canvas, source);
-                }
-
-                // Flag that there is at least one metric
-                metricsFound_ = true;
-                addSource_(source, $sourceRow);
-        });
-    };
-
-
-    /**
-     * Get category row d3 HTML element. It will automatically
-     * add the element to the passed canvas.
-     * @param {d3Object} canvas d3 HTML element
-     * @param {Array} source Source information.
-     * @param {d3Object}
-     */
-    var getSourceRow_ = function(canvas, source) {
-        var sourceRow, sourceTitle, tooltip;
+    var addSourceRow_ = function(canvas, source) {
+        var sourceRow, sourceTitle;
 
         // Build category html objects.
         sourceRow = canvas.append("div")
             .attr("class", "paperbuzz-source-row")
             .attr("style", "width: 100%; overflow: hidden;")
-            .attr("id", "source-" + source.name);
+            .attr("id", "source-" + source.source_id);
 
         sourceTitle = sourceRow.append("h2")
             .attr("class", "paperbuzz-source-row-heading")
-            .attr("id", "month-" + source.name)
-            .text(source.display_name);
+            .attr("id", "month-" + source)
+            .text(source.source_id);
 
-        tooltip = sourceTitle.append("div")
-            .attr("class", "paperbuzz-source-row-info").append("span")
-            .attr("class", "ui-icon ui-icon-info");
-
-        $(tooltip).tooltip({title: source, container: 'body'});
+        addSource_(source, sourceRow)
 
         return sourceRow;
     };
 
 
-    var addStuff_ = function(source) {
+    /**
+     * Add source information to the passed category row element.
+     * @param {Object} source
+     * @param {Object} category
+     * @param {JQueryObject} $sourceRow
+     * @return {JQueryObject}
+     */
+    var addSource_ = function(source, $sourceRow) {
+        var $row, $countLabel, $count,
+            total = source.events_count;
+
+        $row = $sourceRow
+            .append("div")
+            .attr("class", "paperbuzz-row")
+            .attr("style", "float: left")
+            .attr("id", "paperbuzz-row-" + source.source_id);
+
+        $countLabel = $row.append("div")
+            .attr("class", "paperbuzz-count-label");
+
+        // if (hasIcon.indexOf(source.name) >= 0) {
+        //     $countLabel.append("img")
+        //         .attr("src", baseUrl_ + '/assets/' + source.name + '.png')
+        //         .attr("alt", 'a description of the source')
+        //         .attr("class", "label-img");
+        // }
+
+        // Check how to change this
+        if (source.events_url) {
+            // if there is an events_url, we can link to it from the count
+            $count = $countLabel.append("a")
+                .attr("href", function(d) { return source.events_url; });
+        } else {
+            // if no events_url, we just put in the count
+            $count = $countLabel.append("span");
+        }
+
+        $count
+            .attr("class", "paperbuzz-count")
+            .attr("id", "paperbuzz-count-" + source.source_id)
+            .text(formatNumber_(total));
+
+        $countLabel.append("br");
+        $countLabel.append("span")
+            .text(source.display_name);
+
+        // Only add a chart if the browser supports SVG
+        if (hasSVG_) {
+            var level = false;
+
+            // check what levels we can show
+            var showDaily = false;
+            var showMonthly = false;
+            var showYearly = false;
+
+            if (source.events_count_by_year) {
+                level_data = source.events_count_by_year;
+                var yearTotal = level_data.reduce(function(i, d) { return i + d.count; }, 0);
+                var numYears = d3.timeYear.range(pub_date, new Date()).length;
+
+                if (yearTotal >= minItems_.minEventsForYearly &&
+                    numYears >= minItems_.minYearsForYearly) {
+                    showYearly = true;
+                    level = 'year';
+                };
+            }
+
+            if (source.events_count_by_month) {
+                level_data = source.events_count_by_month;
+                var monthTotal = level_data.reduce(function(i, d) { return i + d.count; }, 0);
+                var numMonths = d3.timeMonth.range(pub_date, new Date()).length;
+
+                if (monthTotal >= minItems_.minEventsForMonthly &&
+                    numMonths >= minItems_.minMonthsForMonthly) {
+                    showMonthly = true;
+                    level = 'month';
+                };
+            }
+
+            if (source.events_count_by_day){
+                level_data = source.events_count_by_month;
+                var dayTotal = level_data.reduce(function(i, d) { return i + d.count; }, 0);
+                var numDays = d3.timeDay.range(pub_date, new Date()).length;
+
+                if (dayTotal >= minItems_.minEventsForDaily && numDays >= minItems_.minDaysForDaily) {
+                    showDaily = true;
+                    level = 'day';
+                };
+            }
+
+
+            // The level and level_data should be set to the finest level
+            // of granularity that we can show
+            timeInterval = getTimeInterval_(level);
+
+            // check there is data for
+            if (showDaily || showMonthly || showYearly) {
+                var $chartDiv = $row.append("div")
+                    .attr("style", "width: 70%; float:left;")
+                    .attr("class", "paperbuzz-chart-area");
+
+                var viz = getViz_($chartDiv, source);
+                loadData_(viz, level);
+
+                var update_controls = function(control) {
+                    control.siblings('.paperbuzz-control').removeClass('active');
+                    control.addClass('active');
+                };
+
+                var $levelControlsDiv = $chartDiv.append("div")
+                    .attr("style", "width: " + (viz.margin.left + viz.width) + "px;")
+                    .append("div")
+                    .attr("style", "float:right;");
 
                 if (showDaily) {
                     $levelControlsDiv.append("a")
                         .attr("href", "javascript:void(0)")
-                        .classed("alm-control", true)
+                        .classed("paperbuzz-control", true)
                         .classed("disabled", !showDaily)
                         .classed("active", (level == 'day'))
                         .text("daily (first 30)")
@@ -175,7 +246,7 @@ function PaperbuzzViz(options) {
                 if (showMonthly) {
                     $levelControlsDiv.append("a")
                         .attr("href", "javascript:void(0)")
-                        .classed("alm-control", true)
+                        .classed("paperbuzz-control", true)
                         .classed("disabled", !showMonthly || !showYearly)
                         .classed("active", (level == 'month'))
                         .text("monthly")
@@ -194,7 +265,7 @@ function PaperbuzzViz(options) {
                 if (showYearly) {
                     $levelControlsDiv.append("a")
                         .attr("href", "javascript:void(0)")
-                        .classed("alm-control", true)
+                        .classed("paperbuzz-control", true)
                         .classed("disabled", !showYearly || !showMonthly)
                         .classed("active", (level == 'year'))
                         .text("yearly")
@@ -217,6 +288,7 @@ function PaperbuzzViz(options) {
         return $row;
     };
 
+    
 
     /**
      * Extract the date from the source
@@ -225,16 +297,16 @@ function PaperbuzzViz(options) {
      * @return {Date}
      */
     var getDate_ = function(level, d) {
-        switch (level) {
-            case 'year':
-                return new Date(d.year, 0, 1);
-            case 'month':
-                // js Date indexes months at 0
-                return new Date(d.year, d.month - 1, 1);
-            case 'day':
-                // js Date indexes months at 0
-                return new Date(d.year, d.month - 1, d.day);
+        var parseString = ''
+        if (level == 'year') {
+            parseString = '%Y';
+        } else if (level == 'month') {
+            parseString = '%Y-%m';
+        } else if (level == 'day') {
+            parseString = '%Y-%m-%d';
         }
+        return d3.timeParse(parseString)(d.date);
+
     };
 
 
@@ -265,11 +337,11 @@ function PaperbuzzViz(options) {
     var getData_ = function(level, source) {
         switch (level) {
             case 'year':
-                return source.by_year;
+                return source.events_count_by_year;
             case 'month':
-                return source.by_month;
+                return source.events_count_by_month;
             case 'day':
-                return source.by_day;
+                return source.events_count_by_day;
         }
     };
 
@@ -281,11 +353,11 @@ function PaperbuzzViz(options) {
     var getTimeInterval_ = function(level) {
         switch (level) {
             case 'year':
-                return d3.time.year.utc;
+                return d3.timeYear;
             case 'month':
-                return d3.time.month.utc;
+                return d3.timeMonth;
             case 'day':
-                return d3.time.day.utc;
+                return d3.timeDay;
         }
     };
 
@@ -312,18 +384,16 @@ function PaperbuzzViz(options) {
         viz.sources = sources;
 
         // just for record keeping
-        viz.name = sources.name;
+        viz.name = sources.source_id;
 
         viz.x = d3.scaleTime()
-                .domain(d3.extent(eventdate, function(d){ return parseDate(d); }))
                 .range([0,viz.width])
                 .nice(d3.timeMonth);
 
         viz.y = d3.scaleLinear()
-                .domain([0, d3.max(newECArray)])
                 .rangeRound([viz.height,0]);
 
-        viz.z = d3.scale.ordinal();
+        viz.z = d3.scaleOrdinal();
         viz.z.range(['main', 'alt']);
 
         // the chart
@@ -336,9 +406,6 @@ function PaperbuzzViz(options) {
 
         // draw the bars g first so it ends up underneath the axes
         viz.bars = viz.svg.append("g");
-
-        // and the shadow bars on top for the tooltips
-        viz.barsForTooltips = viz.svg.append("g");
 
         viz.svg.append("g")
             .attr("class", "x axis")
@@ -366,7 +433,7 @@ function PaperbuzzViz(options) {
         if (level == 'day') {
             end_date = timeInterval.offset(pub_date, 29);
         } else {
-            end_date = d3.time.year.utc.ceil(end_date);
+            end_date = d3.timeYear.ceil(end_date);
         }
 
         //
@@ -376,24 +443,15 @@ function PaperbuzzViz(options) {
         viz.x.domain([timeInterval.floor(pub_date), end_date]);
 
         // a linear axis from 0 to max value found
-        viz.y.domain([0, d3.max(newECArray)]);
+        viz.y.domain([0, d3.max(level_data, function(d) { return d.count; })]);
 
         //
         // Axis
         //
-        // a linear axis between publication date and current date
-        viz.xAxis = d3.svg.axis()
-            .scale(viz.x)
-            .tickSize(0)
-            .ticks(0);
-
-        // a linear y axis between 0 and max value found in data
-        viz.yAxis = d3.svg.axis()
-            .scale(viz.y)
-            .orient("left")
-            .tickSize(0)
-            .tickValues([d3.max(viz.y.domain())])   // only one tick at max
-            .tickFormat(d3.format(",d"));
+        var yAxis = d3.axisLeft(viz.y)
+                .tickValues([d3.max(viz.y.domain())]);
+        
+        var xAxis = d3.axisBottom(viz.x);
 
         //
         // The chart itself
@@ -402,36 +460,31 @@ function PaperbuzzViz(options) {
         // TODO: these transitions could use a little work
         var barWidth = Math.max((viz.width/(timeInterval.range(pub_date, end_date).length + 1)) - 2, 1);
 
-        var barsForTooltips = viz.barsForTooltips.selectAll(".barsForTooltip")
-            .data(level_data, function(d) { return getDate_(level, d); });
-
-        barsForTooltips
-            .exit()
-            .remove();
-
         var bars = viz.bars.selectAll(".bar")
             .data(level_data, function(d) { return getDate_(level, d); });
 
         bars
             .enter().append("rect")
-            .attr("class", function(d) { return "bar " + viz.z((level == 'day' ? d3.time.weekOfYear(getDate_(level, d)) : d.year)); })
-            .attr("y", viz.height)
-            .attr("height", 0);
-
-        bars
-            .attr("x", function(d) { return viz.x(getDate_(level, d)) + 2; }) // padding of 2, 1 each side
-            .attr("width", barWidth);
-
-        bars.transition()
-            .duration(1000)
+            .attr("class", function(d) { return "bar " + viz.z((level == 'day' ? d3.timeWeek(getDate_(level, d)) : d.year)); })
+            .attr("x", function(d) { return viz.x(getDate_(level, d)) + 2; }) // padding of 2, 1 each 
+            .attr("y", function(d) { return viz.y(d.count) } )
             .attr("width", barWidth)
-            .attr("y", function(d) { return viz.y(d[category.name]); })
-            .attr("height", function(d) { return viz.height - viz.y(d[category.name]); });
-
-        bars
-            .exit().transition()
-            .attr("y", viz.height)
-            .attr("height", 0);
+            .attr("height", function(d) { return viz.height - viz.y(d.count); })
+            .on("mouseover", function(d) {
+                tooltipDiv = d3.select("#paperbuzzTooltip");
+                tooltipDiv.transition()
+                    .duration(100)
+                    .style("opacity", .9)
+                    .style("left", d3.event.pageX - 50 + "px")
+                    .style("top", d3.event.pageY - 50 + "px");
+                tooltipDiv.html("count: " + d.count + "<br>" + "date: " + d.date);
+                })
+            .on("mouseout", function(d) {
+                tooltipDiv = d3.select("#paperbuzzTooltip");
+                tooltipDiv.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+                });
 
         bars
             .exit()
@@ -439,30 +492,11 @@ function PaperbuzzViz(options) {
 
         viz.svg
             .select(".x.axis")
-            .call(viz.xAxis);
+            .call(xAxis);
 
         viz.svg
             .transition().duration(1000)
             .select(".y.axis")
-            .call(viz.yAxis);
-
-        barsForTooltips
-            .enter().append("rect")
-            .attr("class", function(d) { return "barsForTooltip " + viz.z((level == 'day' ? d3.time.weekOfYear(getDate_(level, d)) : d.year)); });
-
-        barsForTooltips
-            .attr("width", barWidth + 2)
-            .attr("x", function(d) { return viz.x(getDate_(level, d)) + 1; })
-            .attr("y", function(d) { return viz.y(d[category.name]) - 1; })
-            .attr("height", function(d) { return viz.height - viz.y(d[category.name]) + 1; });
-
-
-        // add in some tool tips
-        viz.barsForTooltips.selectAll("rect").each(
-            function(d,i){
-                $(this).tooltip('destroy'); // need to destroy so all bars get updated
-                $(this).tooltip({title: formatNumber_(d[category.name]) + " in " + getFormattedDate_(level, d), container: "body"});
-            }
-        );
+            .call(yAxis);
     }
 };

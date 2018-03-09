@@ -1,6 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 	<head>
+		<meta charset="utf-8"/>
 		<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
 		<script type="text/javascript" src="js/bootstrap.tooltip.min.js"></script>
 
@@ -14,7 +15,7 @@
 		</style>
 
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.tooltip.min.css" />
-		<link rel="stylesheet" type="text/css" href="css/almviz.css" />
+		<link rel="stylesheet" type="text/css" href="css/paperbuzzviz.css" />
 		<link rel="stylesheet" type="text/css" href="css/jqueryUi.css" />
     </head>
 	<body>
@@ -25,25 +26,31 @@
     <script type="text/javascript" src="script5.js"></script>
 	
     <script type="text/javascript">
-		options = {
+		var options = {
 					baseUrl: 'http://pkp-alm.lib.sfu.ca',
 					minItemsToShowGraph: {
-							minEventsForYearly: 6,
-							minEventsForMonthly: 6,
-							minEventsForDaily: 6,
-							minYearsForYearly: 6,
-							minMonthsForMonthly: 6,
-							minDaysForDaily: 6
+							minEventsForYearly: 1,
+							minEventsForMonthly: 1,
+							minEventsForDaily: 1,
+							minYearsForYearly: 1,
+							minMonthsForMonthly: 1,
+							minDaysForDaily: 1
 							}, 
 					showTitle: true,
 					
 				}
-	
-			d3.json('https://api.paperbuzz.org/v0/doi/10.1371/journal.pone.0000308', function(data) {
+
+		var paperbuzzviz = undefined;
+		var doi = '10.1371/journal.pmed.0020124';
+		var doi = '10.7287/peerj.preprints.3119v1';
+		var doi = '10.1007/s00266-017-0820-4';
+
+		d3.json('https://api.paperbuzz.org/v0/doi/' + doi, function(data) {
 				options.paperbuzzStatsJson = data
-				var paperbuzzviz = new PaperbuzzViz(options);
+				paperbuzzviz = new PaperbuzzViz(options);
 				paperbuzzviz.initViz();
-		});
+			});
+	
 	</script>
     <div id="built-with"><p>Built with <a href="http://d3js.org/">d3.js</a></p></div>
 	</body>
