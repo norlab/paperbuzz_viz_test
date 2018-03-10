@@ -72,11 +72,6 @@ function PaperbuzzViz(options) {
             addSourceRow_(vizDiv, source);
         });
 
-        // add a tooltip: this will be moved around when going in/out of a bar in a graph
-        vizDiv.append("div")
-            .attr("id", "paperbuzzTooltip")
-            .style("opacity", 0);
-
         if (!metricsFound_) {
             vizDiv.append("p")
                 .attr("class", "muted")
@@ -399,8 +394,9 @@ function PaperbuzzViz(options) {
         // the chart
         viz.svg = viz.chartDiv.append("svg")
             .attr("width", viz.width + viz.margin.left + viz.margin.right)
-            .attr("height", viz.height + viz.margin.top + viz.margin.bottom)
-            .append("g")
+            .attr("height", viz.height + viz.margin.top + viz.margin.bottom);
+
+        viz.svg.append("g")
             .attr("transform", "translate(" + viz.margin.left + "," + viz.margin.top + ")");
 
 
@@ -413,6 +409,10 @@ function PaperbuzzViz(options) {
 
         viz.svg.append("g")
             .attr("class", "y axis");
+
+        viz.tip = d3.tip().attr('class', 'paperbuzzTooltip').html(function(d) { return "count: " + d.count + "<br>" + "date: " + d.date; });
+        viz.tip.offset([-10, 0]); // make room for the little triangle
+        viz.svg.call(viz.tip);
 
         return viz;
     };
@@ -479,21 +479,8 @@ function PaperbuzzViz(options) {
             .attr("y", function(d) { return viz.y(d.count) } )
             .attr("width", barWidth)
             .attr("height", function(d) { return viz.height - viz.y(d.count); })
-            .on("mouseover", function(d) {
-                tooltipDiv = d3.select("#paperbuzzTooltip");
-                tooltipDiv.transition()
-                    .duration(100)
-                    .style("opacity", .9)
-                    .style("left", d3.event.pageX - 50 + "px")
-                    .style("top", d3.event.pageY - 50 + "px");
-                tooltipDiv.html("count: " + d.count + "<br>" + "date: " + d.date);
-                })
-            .on("mouseout", function(d) {
-                tooltipDiv = d3.select("#paperbuzzTooltip");
-                tooltipDiv.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-                });
+            .on("mouseover", viz.tip.show)
+            .on("mouseout", viz.tip.hide);
 
         bars
             .exit()
