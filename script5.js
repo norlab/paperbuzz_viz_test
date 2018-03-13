@@ -26,11 +26,12 @@ function PaperbuzzViz(options) {
 
     // TODO: Fix to use parseDate
     // TODO: Fix to work when no pub date is available. Use earliest event
-    // var year = data.metadata["published-online"]["date-parts"][0][0];
-    // var month = data.metadata["published-online"]["date-parts"][0][1];
-    // var day = data.metadata["published-online"]["date-parts"][0][2];
-    var published_date = '2017-08-02'; // year+"-"+month+"-"+day;
-    // var published_date = year+"-"+month+"-"+day;
+    var year = data.metadata["published-online"]["date-parts"][0][0];
+    var month = data.metadata["published-online"]["date-parts"][0][1];
+    var day = data.metadata["published-online"]["date-parts"][0][2];
+    var published_date = year+"-"+month+"-"+day;
+    // var published_date = '2017-08-02'; // year+"-"+month+"-"+day;
+    
 
     // extract publication date
     var pub_date = parseDate(published_date);
@@ -367,9 +368,9 @@ function PaperbuzzViz(options) {
         var viz = {};
 
         // size parameters
-        viz.margin = {top: 20, right: 20, bottom: 90, left: 50};
-        viz.width = 600 - viz.margin.left - viz.margin.right;
-        viz.height = 300 - viz.margin.top - viz.margin.bottom;
+        viz.margin = {top: 20, right: 20, bottom: 20, left: 50};
+        viz.width = 500 - viz.margin.left - viz.margin.right;
+        viz.height = 200 - viz.margin.top - viz.margin.bottom;
 
 
         // div where everything goes
@@ -410,7 +411,11 @@ function PaperbuzzViz(options) {
         viz.svg.append("g")
             .attr("class", "y axis");
 
-        viz.tip = d3.tip().attr('class', 'paperbuzzTooltip').html(function(d) { return "count: " + d.count + "<br>" + "date: " + d.date; });
+        // TODO: change so that instead of d.date, it does something more sensible like: 
+        // saying the name of the month (when viewing monthly) and saying day + month (in words) 
+        // when daily. Showing year for yearly is good. 
+        // also, style so number is in one colour?
+        viz.tip = d3.tip().attr('class', 'paperbuzzTooltip').html(function(d) { return d.count + "<br>" + d.date; });
         viz.tip.offset([-10, 0]); // make room for the little triangle
         viz.svg.call(viz.tip);
 
