@@ -29,8 +29,9 @@ function PaperbuzzViz(options) {
     var year = data.metadata["published-online"]["date-parts"][0][0];
     var month = data.metadata["published-online"]["date-parts"][0][1];
     var day = data.metadata["published-online"]["date-parts"][0][2];
-    // var published_date = '2017-08-02'; // year+"-"+month+"-"+day;
     var published_date = year+"-"+month+"-"+day;
+    // var published_date = '2017-08-02'; // year+"-"+month+"-"+day;
+    
 
     // extract publication date
     var pub_date = parseDate(published_date);
@@ -71,11 +72,6 @@ function PaperbuzzViz(options) {
             metricsFound_ = true;
             addSourceRow_(vizDiv, source);
         });
-
-        // add a tooltip: this will be moved around when going in/out of a bar in a graph
-        vizDiv.append("div")
-            .attr("id", "paperbuzzTooltip")
-            .style("opacity", 0);
 
         if (!metricsFound_) {
             vizDiv.append("p")
@@ -372,9 +368,9 @@ function PaperbuzzViz(options) {
         var viz = {};
 
         // size parameters
-        viz.margin = {top: 20, right: 20, bottom: 90, left: 50};
-        viz.width = 600 - viz.margin.left - viz.margin.right;
-        viz.height = 300 - viz.margin.top - viz.margin.bottom;
+        viz.margin = {top: 20, right: 20, bottom: 20, left: 50};
+        viz.width = 500 - viz.margin.left - viz.margin.right;
+        viz.height = 200 - viz.margin.top - viz.margin.bottom;
 
 
         // div where everything goes
@@ -399,8 +395,9 @@ function PaperbuzzViz(options) {
         // the chart
         viz.svg = viz.chartDiv.append("svg")
             .attr("width", viz.width + viz.margin.left + viz.margin.right)
-            .attr("height", viz.height + viz.margin.top + viz.margin.bottom)
-            .append("g")
+            .attr("height", viz.height + viz.margin.top + viz.margin.bottom);
+
+        viz.svg.append("g")
             .attr("transform", "translate(" + viz.margin.left + "," + viz.margin.top + ")");
 
 
@@ -413,6 +410,14 @@ function PaperbuzzViz(options) {
 
         viz.svg.append("g")
             .attr("class", "y axis");
+
+        // TODO: change so that instead of d.date, it does something more sensible like: 
+        // saying the name of the month (when viewing monthly) and saying day + month (in words) 
+        // when daily. Showing year for yearly is good. 
+        // also, style so number is in one colour?
+        viz.tip = d3.tip().attr('class', 'paperbuzzTooltip').html(function(d) { return d.count + "<br>" + d.date; });
+        viz.tip.offset([-10, 0]); // make room for the little triangle
+        viz.svg.call(viz.tip);
 
         return viz;
     };
@@ -451,7 +456,16 @@ function PaperbuzzViz(options) {
         var yAxis = d3.axisLeft(viz.y)
                 .tickValues([d3.max(viz.y.domain())]);
         
-        var xAxis = d3.axisBottom(viz.x);
+        var ticks;
+        if (level == 'day') {
+            ticks = d3.timeDay.every(4);
+        } else if (level == 'month') {
+            ticks = d3.timeMonth.every(2);
+        } else {
+            ticks = d3.timeYear.every(1)
+        }
+        var xAxis = d3.axisBottom(viz.x)
+                        .ticks(ticks);
 
         //
         // The chart itself
@@ -470,21 +484,8 @@ function PaperbuzzViz(options) {
             .attr("y", function(d) { return viz.y(d.count) } )
             .attr("width", barWidth)
             .attr("height", function(d) { return viz.height - viz.y(d.count); })
-            .on("mouseover", function(d) {
-                tooltipDiv = d3.select("#paperbuzzTooltip");
-                tooltipDiv.transition()
-                    .duration(100)
-                    .style("opacity", .9)
-                    .style("left", d3.event.pageX - 50 + "px")
-                    .style("top", d3.event.pageY - 50 + "px");
-                tooltipDiv.html("count: " + d.count + "<br>" + "date: " + d.date);
-                })
-            .on("mouseout", function(d) {
-                tooltipDiv = d3.select("#paperbuzzTooltip");
-                tooltipDiv.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-                });
+            .on("mouseover", viz.tip.show)
+            .on("mouseout", viz.tip.hide);
 
         bars
             .exit()
