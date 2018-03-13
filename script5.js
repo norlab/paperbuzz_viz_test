@@ -32,7 +32,6 @@ function PaperbuzzViz(options) {
     var published_date = year+"-"+month+"-"+day;
     // var published_date = '2017-08-02'; // year+"-"+month+"-"+day;
     
-
     // extract publication date
     var pub_date = parseDate(published_date);
 
@@ -368,7 +367,7 @@ function PaperbuzzViz(options) {
         var viz = {};
 
         // size parameters
-        viz.margin = {top: 20, right: 20, bottom: 20, left: 50};
+        viz.margin = {top: 20, right: 20, bottom: 30, left: 50};
         viz.width = 500 - viz.margin.left - viz.margin.right;
         viz.height = 200 - viz.margin.top - viz.margin.bottom;
 
@@ -395,9 +394,8 @@ function PaperbuzzViz(options) {
         // the chart
         viz.svg = viz.chartDiv.append("svg")
             .attr("width", viz.width + viz.margin.left + viz.margin.right)
-            .attr("height", viz.height + viz.margin.top + viz.margin.bottom);
-
-        viz.svg.append("g")
+            .attr("height", viz.height + viz.margin.top + viz.margin.bottom)
+            .append("g")
             .attr("transform", "translate(" + viz.margin.left + "," + viz.margin.top + ")");
 
 
@@ -456,6 +454,8 @@ function PaperbuzzViz(options) {
         var yAxis = d3.axisLeft(viz.y)
                 .tickValues([d3.max(viz.y.domain())]);
         
+        // TODO: for month/year, change ticks to a more reasonable number
+        // when there are too many years 
         var ticks;
         if (level == 'day') {
             ticks = d3.timeDay.every(4);
