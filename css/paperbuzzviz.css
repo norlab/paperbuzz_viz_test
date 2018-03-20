@@ -92,6 +92,7 @@
 
 .paperbuzz-control.active {
 	text-decoration: none;
+	color: grey;
 }
 
 .paperbuzz-control.disabled {

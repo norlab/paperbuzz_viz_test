@@ -11,7 +11,7 @@ function PaperbuzzViz(options) {
     $ = options.jQuery || $;
 
     // Init basic options
-    var baseUrl_ = options.baseUrl;
+    var baseUrl = options.baseUrl;
     var hasIcon = options.hasIcon;
     var sources = [];
     var eventcount = [];
@@ -21,14 +21,16 @@ function PaperbuzzViz(options) {
     var showTitle = options.showTitle;
     var formatNumber_ = d3.format(",d");
     var parseDate = d3.timeParse('%Y-%m-%d');
+    var graphheight = options.graphheight;
+    var graphwidth = options.graphwidth;
 
     var data = options.paperbuzzStatsJson;
 
     // TODO: Fix to use parseDate
     // TODO: Fix to work when no pub date is available. Use earliest event
-    var year = data.metadata["published-online"]["date-parts"][0][0];
-    var month = data.metadata["published-online"]["date-parts"][0][1];
-    var day = data.metadata["published-online"]["date-parts"][0][2];
+    var year = parseDate(data.metadata["published-online"]["date-parts"][0][0]);
+    var month = parseDate(data.metadata["published-online"]["date-parts"][0][1]);
+    var day = parseDate(data.metadata["published-online"]["date-parts"][0][2]);
     var published_date = year+"-"+month+"-"+day;
     // var published_date = '2017-08-02'; // year+"-"+month+"-"+day;
     
@@ -66,7 +68,7 @@ function PaperbuzzViz(options) {
         }
 
 
-        // loop through categories
+        // loop through sources
         sources.forEach(function(source) {
             metricsFound_ = true;
             addSourceRow_(vizDiv, source);
@@ -80,7 +82,7 @@ function PaperbuzzViz(options) {
     };
 
      /**
-     * Build each article level statistics category.
+     * Build each article level statistics source.
      * @param {Object} canvas d3 element
      * @param {Array} sources Information about the source.
      * @param {Object} data Statistics.
@@ -146,7 +148,7 @@ function PaperbuzzViz(options) {
         $count
             .attr("class", "paperbuzz-count")
             .attr("id", "paperbuzz-count-" + source.source_id)
-            .text(formatNumber_(total));
+            .text('Total: ' + formatNumber_(total));
 
         $countLabel.append("br");
         $countLabel.append("span")
@@ -184,6 +186,8 @@ function PaperbuzzViz(options) {
                     level = 'month';
                 };
             }
+
+            //add something to check if there are min events in the first 30 days (since that's all we show)
 
             if (source.events_count_by_day){
                 level_data = source.events_count_by_month;
@@ -368,8 +372,8 @@ function PaperbuzzViz(options) {
 
         // size parameters
         viz.margin = {top: 20, right: 20, bottom: 30, left: 50};
-        viz.width = 500 - viz.margin.left - viz.margin.right;
-        viz.height = 200 - viz.margin.top - viz.margin.bottom;
+        viz.width = graphwidth - viz.margin.left - viz.margin.right;
+        viz.height = graphheight - viz.margin.top - viz.margin.bottom;
 
 
         // div where everything goes
@@ -413,7 +417,9 @@ function PaperbuzzViz(options) {
         // saying the name of the month (when viewing monthly) and saying day + month (in words) 
         // when daily. Showing year for yearly is good. 
         // also, style so number is in one colour?
-        viz.tip = d3.tip().attr('class', 'paperbuzzTooltip').html(function(d) { return d.count + "<br>" + d.date; });
+        viz.tip = d3.tip()
+                .attr('class', 'paperbuzzTooltip')
+                .html(function(d) { return 'Count: ' + d.count + "<br>" + 'Date: ' + d.date; });
         viz.tip.offset([-10, 0]); // make room for the little triangle
         viz.svg.call(viz.tip);
 
