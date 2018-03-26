@@ -157,7 +157,8 @@
 	font-style: normal;
   }
   
-  [class^="icon-"], [class*=" icon-"] {
+  
+[class^="icon-"], [class*=" icon-"] {
 	/* use !important to prevent issues with browser extensions that change fonts */
 	font-family: 'icomoon' !important;
 	speak: none;
@@ -172,14 +173,15 @@
 	-moz-osx-font-smoothing: grayscale;
   }
   
+  .icon-stackexchange:before {
+	content: "\e908";
+	color: #1e5397;
+  }
   .icon-reddit-links:before {
 	content: "\eac6";
   }
   .icon-web:before {
 	content: "\e903";
-  }
-  .icon-hypothesis:before {
-	content: "\e907";
   }
   .icon-wikipedia:before {
 	content: "\e906";
