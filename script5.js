@@ -148,7 +148,9 @@ function PaperbuzzViz(options) {
         $count
             .attr("class", "paperbuzz-count")
             .attr("id", "paperbuzz-count-" + source.source_id)
-            .text('Total: ' + formatNumber_(total));
+            .html('<i class="icon-' + source.source_id + '"></i>' + ' ' + formatNumber_(total));
+            //.text('Total: ' + formatNumber_(total)); <span class="icon-web">
+           
 
         $countLabel.append("br");
         $countLabel.append("span")
