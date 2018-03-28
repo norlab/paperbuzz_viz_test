@@ -1,7 +1,7 @@
 /**
  * paperbuzzViz
  * See https://github.com/jalperin/paperbuzzviz for more details
- * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
+ * Distributed under the MIT License. For full terms see the file docs/COPYING.
  * 
  * @brief Article level metrics visualization controller.
  */
@@ -19,13 +19,14 @@ function PaperbuzzViz(options) {
     var eventsource =[];
     var minItems_ = options.minItemsToShowGraph;
     var showTitle = options.showTitle;
+    var showMini = options.showMini;
     var formatNumber_ = d3.format(",d");
     var parseDate = d3.timeParse('%Y-%m-%d');
     var graphheight = options.graphheight;
     var graphwidth = options.graphwidth;
 
     var data = options.paperbuzzStatsJson;
-
+    console.log(data);
     // TODO: Fix to use parseDate
     // TODO: Fix to work when no pub date is available. Use earliest event
     var year = parseDate(data.metadata["published-online"]["date-parts"][0][0]);
@@ -67,7 +68,21 @@ function PaperbuzzViz(options) {
                 .text(data.metadata.title);
         }
 
-
+        if (showMini) {
+            var total = 0;
+            for (i = 0; i < data.altmetrics_sources.length; i++) { 
+                total += data.altmetrics_sources[i].events_count;
+            }
+            vizDiv.append("div")
+                .data(sources)
+                //console.log(sources[0]);
+                .attr("class", "paperbuzz-mini-label")
+                .text(total + ' Online Mentions');
+                //.html(function(i) { return '<i class="icon-' + sources[i].source_id + '"></i>' + ' ' + sources[i].events_count; });
+                //.html('<i class="icon-' + source.source_id + '"></i>' + ' ' + formatNumber_(total));
+           
+        }
+        
         // loop through sources
         sources.forEach(function(source) {
             metricsFound_ = true;
@@ -149,7 +164,6 @@ function PaperbuzzViz(options) {
             .attr("class", "paperbuzz-count")
             .attr("id", "paperbuzz-count-" + source.source_id)
             .html('<i class="icon-' + source.source_id + '"></i>' + ' ' + formatNumber_(total));
-            //.text('Total: ' + formatNumber_(total)); <span class="icon-web">
            
 
         $countLabel.append("br");
