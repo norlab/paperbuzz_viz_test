@@ -9,7 +9,7 @@
 		</script>
 		
 		<script src="https://d3js.org/d3.v4.min.js"></script>
-
+		<!-- <script src="https://d3plus.org/js/d3plus-text.v0.9.full.min.js"></script> -->
 		<script type="text/javascript" src="d3-tip/index.js"></script>
 
 		<style>
@@ -32,14 +32,14 @@
 		var options = {
 					baseUrl: 'http://pkp-alm.lib.sfu.ca',
 					minItemsToShowGraph: {
-							minEventsForYearly: 3,
-							minEventsForMonthly: 3,
-							minEventsForDaily: 3,
-							minYearsForYearly: 3,
-							minMonthsForMonthly: 3,
-							minDaysForDaily: 3
+							minEventsForYearly: 1,
+							minEventsForMonthly: 1,
+							minEventsForDaily: 1,
+							minYearsForYearly: 1,
+							minMonthsForMonthly: 1,
+							minDaysForDaily: 1 //first 30 days only
 							},
-					graphheight: 300,
+					graphheight: 250,
 					graphwidth:  500,
 					showTitle: true,
 					showMini: true,

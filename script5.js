@@ -27,16 +27,17 @@ function PaperbuzzViz(options) {
 
     var data = options.paperbuzzStatsJson;
     console.log(data);
-    // TODO: Fix to use parseDate
+    
     // TODO: Fix to work when no pub date is available. Use earliest event
-    var year = parseDate(data.metadata["published-online"]["date-parts"][0][0]);
-    var month = parseDate(data.metadata["published-online"]["date-parts"][0][1]);
-    var day = parseDate(data.metadata["published-online"]["date-parts"][0][2]);
+    var year = data.metadata["published-online"]["date-parts"][0][0];
+    var month = data.metadata["published-online"]["date-parts"][0][1];
+    var day = data.metadata["published-online"]["date-parts"][0][2];
     var published_date = year+"-"+month+"-"+day;
-    // var published_date = '2017-08-02'; // year+"-"+month+"-"+day;
     
     // extract publication date
     var pub_date = parseDate(published_date);
+
+    console.log(pub_date);
 
     var vizDiv;
     // Get the Div where the viz should go (default to one with ID "paperbuzz')
@@ -68,25 +69,21 @@ function PaperbuzzViz(options) {
                 .text(data.metadata.title);
         }
 
+        vizDiv.append("br");
+        
         if (showMini) {
-            var total = 0;
-            for (i = 0; i < data.altmetrics_sources.length; i++) { 
-                total += data.altmetrics_sources[i].events_count;
-            }
-            vizDiv.append("div")
-                .data(sources)
-                //console.log(sources[0]);
-                .attr("class", "paperbuzz-mini-label")
-                .text(total + ' Online Mentions');
-                //.html(function(i) { return '<i class="icon-' + sources[i].source_id + '"></i>' + ' ' + sources[i].events_count; });
-                //.html('<i class="icon-' + source.source_id + '"></i>' + ' ' + formatNumber_(total));
+            
+           //var total = 0;
+            //for (i = 0; i < data.altmetrics_sources.length; i++) { 
+               // total += data.altmetrics_sources[i].events_count;
+           // }
            
         }
-        
+
         // loop through sources
         sources.forEach(function(source) {
             metricsFound_ = true;
-            addSourceRow_(vizDiv, source);
+            addSourceRow(vizDiv, source);
         });
 
         if (!metricsFound_) {
@@ -103,7 +100,7 @@ function PaperbuzzViz(options) {
      * @param {Object} data Statistics.
      * @return {JQueryObject|boolean}
      */
-    var addSourceRow_ = function(canvas, source) {
+    var addSourceRow = function(canvas, source) {
         var sourceRow, sourceTitle;
 
         // Build category html objects.
@@ -117,7 +114,7 @@ function PaperbuzzViz(options) {
             .attr("id", "month-" + source)
             .text(source.source_id);
 
-        addSource_(source, sourceRow)
+        addSource(source, sourceRow)
 
         return sourceRow;
     };
@@ -130,7 +127,7 @@ function PaperbuzzViz(options) {
      * @param {JQueryObject} $sourceRow
      * @return {JQueryObject}
      */
-    var addSource_ = function(source, $sourceRow) {
+    var addSource = function(source, $sourceRow) {
         var $row, $countLabel, $count,
             total = source.events_count;
 
@@ -142,23 +139,8 @@ function PaperbuzzViz(options) {
 
         $countLabel = $row.append("div")
             .attr("class", "paperbuzz-count-label");
-
-        // if (hasIcon.indexOf(source.name) >= 0) {
-        //     $countLabel.append("img")
-        //         .attr("src", baseUrl_ + '/assets/' + source.name + '.png')
-        //         .attr("alt", 'a description of the source')
-        //         .attr("class", "label-img");
-        // }
-
-        // Check how to change this
-        if (source.events_url) {
-            // if there is an events_url, we can link to it from the count
-            $count = $countLabel.append("a")
-                .attr("href", function(d) { return source.events_url; });
-        } else {
-            // if no events_url, we just put in the count
-            $count = $countLabel.append("span");
-        }
+       
+        $count = $countLabel.append("span");
 
         $count
             .attr("class", "paperbuzz-count")
@@ -219,7 +201,7 @@ function PaperbuzzViz(options) {
 
             // The level and level_data should be set to the finest level
             // of granularity that we can show
-            timeInterval = getTimeInterval_(level);
+            timeInterval = getTimeInterval(level);
 
             // check there is data for
             if (showDaily || showMonthly || showYearly) {
@@ -227,8 +209,8 @@ function PaperbuzzViz(options) {
                     .attr("style", "width: 70%; float:left;")
                     .attr("class", "paperbuzz-chart-area");
 
-                var viz = getViz_($chartDiv, source);
-                loadData_(viz, level);
+                var viz = getViz($chartDiv, source);
+                loadData(viz, level);
 
                 var update_controls = function(control) {
                     control.siblings('.paperbuzz-control').removeClass('active');
@@ -249,7 +231,7 @@ function PaperbuzzViz(options) {
                         .text("daily (first 30)")
                         .on("click", function() {
                             if (showDaily && !$(this).hasClass('active')) {
-                                loadData_(viz, 'day');
+                                loadData(viz, 'day');
                                 update_controls($(this));
                             }
                         }
@@ -266,7 +248,7 @@ function PaperbuzzViz(options) {
                         .classed("active", (level == 'month'))
                         .text("monthly")
                         .on("click", function() { if (showMonthly && !$(this).hasClass('active')) {
-                            loadData_(viz, 'month');
+                            loadData(viz, 'month');
                             update_controls($(this));
                         } });
 
@@ -286,7 +268,7 @@ function PaperbuzzViz(options) {
                         .text("yearly")
                         .on("click", function() {
                             if (showYearly && !$(this).hasClass('active')) {
-                                loadData_(viz, 'year');
+                                loadData(viz, 'year');
                                 update_controls($(this));
                             }
                         }
@@ -311,7 +293,7 @@ function PaperbuzzViz(options) {
      * @param d the datum
      * @return {Date}
      */
-    var getDate_ = function(level, d) {
+    var getDate = function(level, d) {
         var parseString = ''
         if (level == 'year') {
             parseString = '%Y';
@@ -331,14 +313,14 @@ function PaperbuzzViz(options) {
      * @param d the datum
      * @return {String}
      */
-    var getFormattedDate_ = function(level, d) {
+    var getFormattedDate = function(level, d) {
         switch (level) {
             case 'year':
-                return d3.time.format("%Y")(getDate_(level, d));
+                return d3.time.format("%Y")(getDate(level, d));
             case 'month':
-                return d3.time.format("%b %y")(getDate_(level, d));
+                return d3.time.format("%b %y")(getDate(level, d));
             case 'day':
-                return d3.time.format("%d %b %y")(getDate_(level, d));
+                return d3.time.format("%d %b %y")(getDate(level, d));
         }
     };
 
@@ -349,7 +331,7 @@ function PaperbuzzViz(options) {
      * @param {Object} source
      * @return {Array} Metrics
      */
-    var getData_ = function(level, source) {
+    var getData = function(level, source) {
         switch (level) {
             case 'year':
                 return source.events_count_by_year;
@@ -365,7 +347,7 @@ function PaperbuzzViz(options) {
      * @param {string} level (day|month|year
      * @return {Object} d3 time Interval
      */
-    var getTimeInterval_ = function(level) {
+    var getTimeInterval = function(level) {
         switch (level) {
             case 'year':
                 return d3.timeYear;
@@ -383,11 +365,11 @@ function PaperbuzzViz(options) {
      * @param {Object} sources
      * @return {Object}
      */
-    var getViz_ = function(chartDiv, sources) {
+    var getViz = function(chartDiv, sources) {
         var viz = {};
 
         // size parameters
-        viz.margin = {top: 20, right: 20, bottom: 30, left: 50};
+        viz.margin = {top: 20, right: 20, bottom: 50, left: 50};
         viz.width = graphwidth - viz.margin.left - viz.margin.right;
         viz.height = graphheight - viz.margin.top - viz.margin.bottom;
 
@@ -402,8 +384,8 @@ function PaperbuzzViz(options) {
         viz.name = sources.source_id;
 
         viz.x = d3.scaleTime()
-                .range([0,viz.width])
-                .nice(d3.timeMonth);
+                .range([0,viz.width]);
+                //.nice(d3.timeMonth);
 
         viz.y = d3.scaleLinear()
                 .rangeRound([viz.height,0]);
@@ -448,9 +430,9 @@ function PaperbuzzViz(options) {
      * @param {Object} viz AlmViz object
      * @param {string} level (day|month|year)
      */
-    var loadData_ = function(viz, level) {
-        var level_data = getData_(level, viz.sources);
-        var timeInterval = getTimeInterval_(level);
+    var loadData = function(viz, level) {
+        var level_data = getData(level, viz.sources);
+        var timeInterval = getTimeInterval(level);
 
         var end_date = new Date();
         // use only first 29 days if using day view
@@ -480,16 +462,23 @@ function PaperbuzzViz(options) {
         // when there are too many years 
         var ticks;
         if (level == 'day') {
-            ticks = d3.timeDay.every(4);
+            ticks = d3.timeDay.every(3);
         } else if (level == 'month') {
-            ticks = d3.timeMonth.every(2);
+            ticks = d3.timeMonth.every(6);
         } else {
             ticks = d3.timeYear.every(1)
         }
         var xAxis = d3.axisBottom(viz.x)
                         .ticks(ticks);
-
-        //
+        //viz.x.nice(ticks);
+        var xFormat;
+        if (level == 'day') {
+            xFormat = "%b %d '%y";
+        } else if (level == 'month') {
+            xFormat = "%b %Y";
+        } else {
+            xFormat = "%Y"
+        }
         // The chart itself
         //
 
@@ -497,12 +486,12 @@ function PaperbuzzViz(options) {
         var barWidth = Math.max((viz.width/(timeInterval.range(pub_date, end_date).length + 1)) - 2, 1);
 
         var bars = viz.bars.selectAll(".bar")
-            .data(level_data, function(d) { return getDate_(level, d); });
+            .data(level_data, function(d) { return getDate(level, d); });
 
         bars
             .enter().append("rect")
-            .attr("class", function(d) { return "bar " + viz.z((level == 'day' ? d3.timeWeek(getDate_(level, d)) : d.year)); })
-            .attr("x", function(d) { return viz.x(getDate_(level, d)) + 2; }) // padding of 2, 1 each 
+            .attr("class", function(d) { return "bar " + viz.z((level == 'day' ? d3.timeWeek(getDate(level, d)) : d.year)); })
+            .attr("x", function(d) { return viz.x(getDate(level, d)) + 2; }) // padding of 2, 1 each 
             .attr("y", function(d) { return viz.y(d.count) } )
             .attr("width", barWidth)
             .attr("height", function(d) { return viz.height - viz.y(d.count); })
@@ -515,7 +504,14 @@ function PaperbuzzViz(options) {
 
         viz.svg
             .select(".x.axis")
-            .call(xAxis);
+            .call((xAxis)
+                .tickFormat(d3.timeFormat(xFormat)))
+            .selectAll("text")	
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", ".15em")
+                .attr("transform", "rotate(-45)");
+
 
         viz.svg
             .transition().duration(1000)
