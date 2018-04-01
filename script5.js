@@ -188,9 +188,13 @@ function PaperbuzzViz(options) {
             //add something to check if there are min events in the first 30 days (since that's all we show)
 
             if (source.events_count_by_day){
-                level_data = source.events_count_by_month;
+                level_data = source.events_count_by_day;
+                console.log(level_data);
+                //function needs to return i + d.count only for the first 30 days
                 var dayTotal = level_data.reduce(function(i, d) { return i + d.count; }, 0);
+                console.log(dayTotal);
                 var numDays = d3.timeDay.range(pub_date, new Date()).length;
+                console.log(numDays);
 
                 if (dayTotal >= minItems_.minEventsForDaily && numDays >= minItems_.minDaysForDaily) {
                     showDaily = true;
