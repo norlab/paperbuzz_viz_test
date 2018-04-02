@@ -191,7 +191,9 @@ function PaperbuzzViz(options) {
                 level_data = source.events_count_by_day;
                 console.log(level_data);
                 //function needs to return i + d.count only for the first 30 days
-                var dayTotal = level_data.reduce(function(i, d) { return i + d.count; }, 0);
+                var dayTotal = level_data
+                    .filter(item => parseDate(item.date) < d3.timeDay.offset(pub_date, 29) && parseDate(item.date) >= pub_date)
+                    .reduce(function(i, d) { return i + d.count; }, 0);
                 console.log(dayTotal);
                 var numDays = d3.timeDay.range(pub_date, new Date()).length;
                 console.log(numDays);
