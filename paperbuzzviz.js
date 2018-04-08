@@ -80,6 +80,35 @@ function PaperbuzzViz(options) {
         
         if (showMini) {
             
+                // Build category html objects.
+                vizDiv.append("div")
+                    .attr("class", "paperbuzz-mini-row")
+                    .attr("style", "width: 100%; overflow: hidden;")
+                    .attr("id", "mini");
+        
+                vizDiv.append("h3")
+                    .attr("class", "paperbuzz-mini-row-heading")
+                    .attr("id", "mini-something")
+                    .html('TIMELINE');
+                
+                    var total = 0;
+                    for (i = 0; i < data.altmetrics_sources.length; i++) { 
+                        total += data.altmetrics_sources[i].events_count;
+                    }
+
+                   
+                    function calculateYears(pub_date) {
+                        var years = (new Date()).getFullYear() - pub_date.getFullYear();
+                        return Math.ceil(years);
+                      }
+                      console.log(pub_date);
+                vizDiv.append("p")
+                    .attr("class", "paperbuzz-mini-row-heading")
+                    .attr("id", "mini-something")
+                    .text(total + ' Online mentions over ' + calculateYears(pub_date) + ' year(s)');
+               
+                
+          
            //var total = 0;
             //for (i = 0; i < data.altmetrics_sources.length; i++) { 
                // total += data.altmetrics_sources[i].events_count;
