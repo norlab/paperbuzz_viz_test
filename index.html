@@ -46,10 +46,10 @@
 				}
 
 		var paperbuzzviz = undefined;
-		var doi = '10.1371/journal.pmed.0020124';
+		//var doi = '10.1371/journal.pmed.0020124';
 		
 		// var doi = '10.1007/s00266-017-0820-4';
-		// var doi = '10.7287/peerj.preprints.3119v1';
+		var doi = '10.7287/peerj.preprints.3119v1';
 		d3.json('https://api.paperbuzz.org/v0/doi/' + doi, function(data) {
 				options.paperbuzzStatsJson = data
 				paperbuzzviz = new PaperbuzzViz(options);
