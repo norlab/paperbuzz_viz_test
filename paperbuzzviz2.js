@@ -62,6 +62,67 @@ function PaperbuzzViz(options) {
 
     sources = data.altmetrics_sources
 
+    if (showMini) {
+
+        //vizDiv.select("#loading").remove();
+            
+        var miniViz = d3.select("body").append("svg")
+                                        .attr('height', "100%")
+                                        .attr("width", "100%");
+        console.log(sources);
+        miniViz.selectAll("rect")
+                .data(sources)
+                .enter().append("rect")
+                        .attr("fill", "#CECCCC")
+                        .attr("height", "100")
+                        .attr("width", "700")
+                        .attr("x", "0")
+                        .attr("y", "0");
+
+        miniViz.append("text")
+                .attr("x", "10")
+                .attr("y", "20")
+                .attr("class", "miniViz-title")
+                .html('<a href="http://dx.doi.org/' + data.doi + '">' + data.metadata.title + '</a>');
+
+        var total = 0;
+            for (i = 0; i < data.altmetrics_sources.length; i++) { 
+                total += data.altmetrics_sources[i].events_count;
+            }
+            
+        function calculateYears(pub_date) {
+            var years = (new Date()).getFullYear() - pub_date.getFullYear();
+            return Math.ceil(years);
+            }
+                 
+        miniViz.append("text")
+                .attr("x", "10")
+                .attr("y", "70")
+                .attr("class", "miniViz-total")
+                .text(total);
+
+        miniViz.append("text")
+                .attr("x", "100")
+                .attr("y", "50")
+                .attr("class", "miniViz-text")
+                .text('Online mentions over');
+
+        miniViz.append("text")
+                .attr("x", "100")
+                .attr("y", "70")
+                .attr("class", "miniViz-text")
+                .text(calculateYears(pub_date) + ' year(s)');
+
+        miniViz.append("text")
+                .attr("class", "miniViz-count")
+                .attr("id", function(d, i) { return "miniViz-count-" + data.altmetrics_sources[i].source_id; })
+                .attr("x", "100")
+                .attr("y", "50")
+                .html(function(d, i) { return '<i class="icon-' + data.altmetrics_sources[i].source_id + '"></i>' + " "; });
+                
+       
+    }
+
      /**
      * Initialize the visualization.
      * NB: needs to be accessible from the outside for initialization
@@ -78,44 +139,7 @@ function PaperbuzzViz(options) {
 
         vizDiv.append("br");
         
-        if (showMini) {
-            
-                // Build category html objects.
-                vizDiv.append("div")
-                    .attr("class", "paperbuzz-mini-row")
-                    .attr("style", "width: 100%; overflow: hidden;")
-                    .attr("id", "mini");
         
-                vizDiv.append("h3")
-                    .attr("class", "paperbuzz-mini-row-heading")
-                    .attr("id", "mini-something")
-                    .html('TIMELINE');
-                
-                    var total = 0;
-                    for (i = 0; i < data.altmetrics_sources.length; i++) { 
-                        total += data.altmetrics_sources[i].events_count;
-                    }
-
-                   
-                    function calculateYears(pub_date) {
-                        var years = (new Date()).getFullYear() - pub_date.getFullYear();
-                        return Math.ceil(years);
-                      }
-                      console.log(pub_date);
-                vizDiv.append("p")
-                    .attr("class", "paperbuzz-mini-row-heading")
-                    .attr("id", "mini-something")
-                    .text(total + ' Online mentions over ' + calculateYears(pub_date) + ' year(s)');
-               
-                
-          
-           //var total = 0;
-            //for (i = 0; i < data.altmetrics_sources.length; i++) { 
-               // total += data.altmetrics_sources[i].events_count;
-           // }
-           
-        }
-
         // loop through sources
         sources.forEach(function(source) {
             metricsFound_ = true;
@@ -560,4 +584,5 @@ function PaperbuzzViz(options) {
             .select(".y.axis")
             .call(yAxis);
     }
+
 };

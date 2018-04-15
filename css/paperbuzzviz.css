@@ -231,5 +231,34 @@
   }
   .icon-twitter:before {
 	content: "\e900";
-  }
+	}
+	
+	/* miniViz */
+	.miniViz-title {
+		font-size: .9em;
+    color: #011a1f;
+    text-decoration: underline;
+	}
+
+	.miniViz-title:hover {
+		cursor: pointer;
+	}
+
+	.miniViz-total {
+		font-size: 3em;
+		color: #011a1f;
+	}
+
+	.miniViz-text {
+		font-size: .75em;
+		color: #011a1f;
+	}
+
+	.miniViz-count {
+		font-size: 1.15em;
+		/*padding-bottom: 0.4em;
+		padding-top: 0.4em;
+		font-weight: bold;
+		vertical-align: middle;*/
+	}
   
