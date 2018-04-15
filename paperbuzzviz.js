@@ -75,7 +75,7 @@ function PaperbuzzViz(options) {
                 .enter().append("rect")
                         .attr("fill", "#CECCCC")
                         .attr("height", "100")
-                        .attr("width", "700")
+                        .attr("width", "100%")
                         .attr("x", "0")
                         .attr("y", "0");
 
