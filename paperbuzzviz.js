@@ -74,7 +74,7 @@ function PaperbuzzViz(options) {
                 .data(sources)
                 .enter().append("rect")
                         .attr("fill", "#CECCCC")
-                        .attr("height", "100")
+                        .attr("height", "200")
                         .attr("width", "100%")
                         .attr("x", "0")
                         .attr("y", "0");
@@ -113,12 +113,20 @@ function PaperbuzzViz(options) {
                 .attr("class", "miniViz-text")
                 .text(calculateYears(pub_date) + ' year(s)');
 
-        miniViz.append("text")
+
+        var total = 0;
+        for (i = 0; i < data.altmetrics_sources.length; i++) { 
+
+            var x = 10;
+            var y = 100 * (i + 1);
+
+            miniViz.append("foreignObject")
                 .attr("class", "miniViz-count")
                 .attr("id", function(d, i) { return "miniViz-count-" + data.altmetrics_sources[i].source_id; })
-                .attr("x", "100")
-                .attr("y", "50")
+                .attr("x", x)
+                .attr("y", y)
                 .html(function(d, i) { return '<i class="icon-' + data.altmetrics_sources[i].source_id + '"></i>' + " "; });
+        }
                 
        
     }
