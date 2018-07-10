@@ -31,13 +31,36 @@ function PaperbuzzViz(options) {
     // TODO: Fix to work when no pub date is available. Use earliest event
     if (data.metadata['published-online']) {
         var year = data.metadata["published-online"]["date-parts"][0][0];
-        var month = data.metadata["published-online"]["date-parts"][0][1];
-        var day = data.metadata["published-online"]["date-parts"][0][2];
+        if (data.metadata["published-online"]["date-parts"][0][1]) {
+            var month = data.metadata["published-online"]["date-parts"][0][1];
+        } else {var month = 01
+        }
+        if (data.metadata["published-online"]["date-parts"][0][2]) {
+            var day = data.metadata["published-online"]["date-parts"][0][2];
+        } else {var day = 01
+        }
+        var published_date = year+"-"+month+"-"+day;
+    } else if (data.metadata['published-print']) {
+        var year = data.metadata["published-print"]["date-parts"][0][0];
+        if (data.metadata["published-print"]["date-parts"][0][1]) {
+            var month = data.metadata["published-print"]["date-parts"][0][1];
+        } else {var month = 01
+        }
+        if (data.metadata["published-print"]["date-parts"][0][2]) {
+            var day = data.metadata["published-print"]["date-parts"][0][2];
+        } else {var day = 01
+        }
         var published_date = year+"-"+month+"-"+day;
     } else {
         var year = data.metadata["issued"]["date-parts"][0][0];
-        var month = data.metadata["issued"]["date-parts"][0][1];
-        var day = data.metadata["issued"]["date-parts"][0][2];
+        if (data.metadata["issued"]["date-parts"][0][1]) {
+            var month = data.metadata["issued"]["date-parts"][0][1];
+        } else {var month = 01
+        }
+        if (data.metadata["issued"]["date-parts"][0][2]) {
+            var day = data.metadata["issued"]["date-parts"][0][2];
+        } else {var day = 01
+        }
         var published_date = year+"-"+month+"-"+day;
     }
     
