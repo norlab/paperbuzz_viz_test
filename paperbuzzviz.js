@@ -139,16 +139,22 @@ function PaperbuzzViz(options) {
 
         var total = 0;
         for (i = 0; i < data.altmetrics_sources.length; i++) { 
-
-            var x = 10;
-            var y = 100 * (i + 1);
+            console.log(i);
+            var x = 230 * (i + 1);
+            var y = 33;
 
             miniViz.append("foreignObject")
                 .attr("class", "miniViz-count")
-                .attr("id", function(d, i) { return "miniViz-count-" + data.altmetrics_sources[i].source_id; })
+                //.attr("id", "miniViz-count-" + data.altmetrics_sources[i].source_id);
                 .attr("x", x)
                 .attr("y", y)
-                .html(function(d, i) { return '<i class="icon-' + data.altmetrics_sources[i].source_id + '"></i>' + " "; });
+                .html('<i class="icon-' + data.altmetrics_sources[i].source_id + '"></i>' + " ");
+
+            miniViz.append("text")
+                .attr("x", x)
+                .attr("y", 70)
+                .attr("class", "miniViz-text")
+                .text(data.altmetrics_sources[i].events_count);
         }
                 
        
