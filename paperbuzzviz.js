@@ -97,7 +97,7 @@ function PaperbuzzViz(options) {
                 .data(sources)
                 .enter().append("rect")
                         .attr("fill", "#CECCCC")
-                        .attr("height", "200")
+                        .attr("height", "90")
                         .attr("width", "100%")
                         .attr("x", "0")
                         .attr("y", "0");
@@ -140,7 +140,7 @@ function PaperbuzzViz(options) {
         var total = 0;
         for (i = 0; i < data.altmetrics_sources.length; i++) { 
             console.log(i);
-            var x = 230 * (i + 1);
+            var x = 230 + (i*40);
             var y = 33;
 
             miniViz.append("foreignObject")
