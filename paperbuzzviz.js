@@ -145,7 +145,7 @@ function PaperbuzzViz(options) {
 
             miniViz.append("foreignObject")
                 .attr("class", "miniViz-count")
-                //.attr("id", "miniViz-count-" + data.altmetrics_sources[i].source_id);
+                .attr("id", "miniViz-count-" + data.altmetrics_sources[i].source_id)
                 .attr("x", x)
                 .attr("y", y)
                 .html('<i class="icon-' + data.altmetrics_sources[i].source_id + '"></i>' + " ");
