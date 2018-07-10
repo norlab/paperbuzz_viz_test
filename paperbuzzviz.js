@@ -26,9 +26,9 @@ function PaperbuzzViz(options) {
     var graphwidth = options.graphwidth;
 
     var data = options.paperbuzzStatsJson;
-    console.log(data);
+    //console.log(data);
     
-    // TODO: Fix to work when no pub date is available. Use earliest event
+    // Will choose pub date based on online pub, print pub, or issued. If no month or day defaults to 01
     if (data.metadata['published-online']) {
         var year = data.metadata["published-online"]["date-parts"][0][0];
         if (data.metadata["published-online"]["date-parts"][0][1]) {
@@ -67,7 +67,7 @@ function PaperbuzzViz(options) {
     // extract publication date
     var pub_date = parseDate(published_date);
 
-    console.log(pub_date);
+    //console.log(pub_date);
 
     var vizDiv;
     // Get the Div where the viz should go (default to one with ID "paperbuzz')
@@ -92,7 +92,7 @@ function PaperbuzzViz(options) {
         var miniViz = d3.select("body").append("svg")
                                         .attr('height', "100%")
                                         .attr("width", "100%");
-        console.log(sources);
+        //console.log(sources);
         miniViz.selectAll("rect")
                 .data(sources)
                 .enter().append("rect")
@@ -276,18 +276,17 @@ function PaperbuzzViz(options) {
                 };
             }
 
-            //add something to check if there are min events in the first 30 days (since that's all we show)
 
             if (source.events_count_by_day){
                 level_data = source.events_count_by_day;
-                console.log(level_data);
+                //console.log(level_data);
                 //function needs to return i + d.count only for the first 30 days
                 var dayTotal = level_data
                     .filter(item => parseDate(item.date) < d3.timeDay.offset(pub_date, 29) && parseDate(item.date) >= pub_date)
                     .reduce(function(i, d) { return i + d.count; }, 0);
-                console.log(dayTotal);
+                //console.log(dayTotal);
                 var numDays = d3.timeDay.range(pub_date, new Date()).length;
-                console.log(numDays);
+                //console.log(numDays);
 
                 if (dayTotal >= minItems_.minEventsForDaily && numDays >= minItems_.minDaysForDaily) {
                     showDaily = true;
@@ -508,10 +507,7 @@ function PaperbuzzViz(options) {
         viz.svg.append("g")
             .attr("class", "y axis");
 
-        // TODO: change so that instead of d.date, it does something more sensible like: 
-        // saying the name of the month (when viewing monthly) and saying day + month (in words) 
-        // when daily. Showing year for yearly is good. 
-        // also, style so number is in one colour?
+        
         viz.tip = d3.tip()
                 .attr('class', 'paperbuzzTooltip')
                 .html(function(d) { return 'Count: ' + d.count + "<br>" + 'Date: ' + d.date; });
@@ -555,8 +551,7 @@ function PaperbuzzViz(options) {
         var yAxis = d3.axisLeft(viz.y)
                 .tickValues([d3.max(viz.y.domain())]);
         
-        // TODO: for month/year, change ticks to a more reasonable number
-        // when there are too many years 
+        
         var ticks;
         if (level == 'day') {
             ticks = d3.timeDay.every(3);
@@ -567,7 +562,7 @@ function PaperbuzzViz(options) {
         }
         var xAxis = d3.axisBottom(viz.x)
                         .ticks(ticks);
-        //viz.x.nice(ticks);
+    
         var xFormat;
         if (level == 'day') {
             xFormat = "%b %d '%y";
