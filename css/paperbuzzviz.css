@@ -88,15 +88,15 @@
 
 .paperbuzz-control.active {
 	text-decoration: none;
-	color: grey;
+	color: black;
 }
 
-.paperbuzz-control.disabled {
+/*.paperbuzz-control.disabled {
 	cursor: default;
 	text-decoration: none;
 	color: grey;
 }
-
+*/
 .paperbuzz-control:hover {
 	background-color: transparent;
 }

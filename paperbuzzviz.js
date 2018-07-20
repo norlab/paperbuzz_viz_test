@@ -11,28 +11,23 @@ function PaperbuzzViz(options) {
     $ = options.jQuery || $;
 
     // Init basic options
-    var baseUrl = options.baseUrl;
-    var hasIcon = options.hasIcon;
-    var sources = [];
-    var eventcount = [];
-    var eventdate = [];
-    var eventsource =[];
     var minItems_ = options.minItemsToShowGraph;
     var showTitle = options.showTitle;
     var showMini = options.showMini;
+
     var formatNumber_ = d3.format(",d");
     var parseDate = d3.timeParse('%Y-%m-%d');
+
     var graphheight = options.graphheight;
     var graphwidth = options.graphwidth;
 
-    var published_date = options.published_date || false;
-
     var data = options.paperbuzzStatsJson;
+    var sources = data.altmetrics_sources;
 
+    var published_date = options.published_date || false;
         
     if (published_date) {
-    // accept the published date passed in, if there was one
-
+        // accept published date provided
     // Will choose pub date based on online pub, print pub, or issued. If no month or day defaults to 01
     } else if (data.metadata['published-online']) {
         published_date = data.metadata["published-online"]["date-parts"][0];
@@ -69,8 +64,7 @@ function PaperbuzzViz(options) {
 
     // to track if any metrics have been found
     var metricsFound_;
-
-    sources = data.altmetrics_sources
+    
 
      /**
      * Initialize the visualization.
@@ -90,7 +84,7 @@ function PaperbuzzViz(options) {
         vizDiv.append("br");
         
         if (sources.length > 0) {
-            if (showMini) {
+            if (showMini || !hasSVG_) {
                 addMiniViz(vizDiv, sources);
             } else {
                 // loop through sources
@@ -269,7 +263,7 @@ function PaperbuzzViz(options) {
                     $levelControlsDiv.append("a")
                         .attr("href", "javascript:void(0)")
                         .classed("paperbuzz-control", true)
-                        .classed("disabled", !showDaily)
+                        // .classed("disabled", !showDaily)
                         .classed("active", (level == 'day'))
                         .text("daily (first 30)")
                         .on("click", function() {
@@ -287,7 +281,7 @@ function PaperbuzzViz(options) {
                     $levelControlsDiv.append("a")
                         .attr("href", "javascript:void(0)")
                         .classed("paperbuzz-control", true)
-                        .classed("disabled", !showMonthly || !showYearly)
+                        // .classed("disabled", !showMonthly || !showYearly)
                         .classed("active", (level == 'month'))
                         .text("monthly")
                         .on("click", function() { if (showMonthly && !$(this).hasClass('active')) {
@@ -306,7 +300,7 @@ function PaperbuzzViz(options) {
                     $levelControlsDiv.append("a")
                         .attr("href", "javascript:void(0)")
                         .classed("paperbuzz-control", true)
-                        .classed("disabled", !showYearly || !showMonthly)
+                        // .classed("disabled", !showYearly || !showMonthly)
                         .classed("active", (level == 'year'))
                         .text("yearly")
                         .on("click", function() {
