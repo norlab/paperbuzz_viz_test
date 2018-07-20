@@ -529,7 +529,10 @@ function PaperbuzzViz(options) {
 
         bars
             .enter().append("rect")
-            .attr("class", function(d) { return "paperbuzz-bar " + viz.z((level == 'day' ? d3.timeWeek(getDate(level, d)) : d.year)); })
+            .attr("class", function(d) { 
+                var bartype = (level == 'day' ? d3.timeWeek(getDate(level, d)) : getDate(level, d).getFullYear());
+                return "paperbuzz-bar " + viz.z(bartype); 
+            })
             .attr("x", function(d) { return viz.x(getDate(level, d)) + 2; }) // padding of 2, 1 each 
             .attr("y", function(d) { return viz.y(d.count) } )
             .attr("width", barWidth)
