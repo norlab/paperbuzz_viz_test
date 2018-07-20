@@ -83,7 +83,7 @@ function PaperbuzzViz(options) {
         if (showTitle) {
             vizDiv.append("a")
                 .attr('href', 'http://dx.doi.org/' + data.doi)
-                .attr("class", "title")
+                .attr("class", "paperbuzz-title")
                 .text(data.metadata.title);
         }
 
@@ -102,7 +102,7 @@ function PaperbuzzViz(options) {
            metricsFound_ = true;
         } else {
             vizDiv.append("p")
-                .attr("class", "muted")
+                .attr("class", "paperbuzz-muted")
                 .text("No metrics found.");
         }
     };
@@ -113,20 +113,21 @@ function PaperbuzzViz(options) {
                         .attr('id', 'paperbuzz-mini');
 
         miniDiv.append('span')
-            .attr('class', 'miniViz-total')
+            .attr('class', 'paperbuzz-mini-total')
 
         var total = 0;
         sources.forEach(function(source) {
-            miniDiv.append('span')
+            miniDiv.append('div')
+                .attr('class', 'paperbuzz-mini-source')
                 .append('i')
                 .attr('class', 'icon-' + source.source_id)
                 .append('span')
-                .attr('class', 'miniViz-count')
+                .attr('class', 'paperbuzz-mini-count')
                 .text(source.events_count);
             total += source.events_count
         });
 
-        miniDiv.selectAll('.miniViz-total')
+        miniDiv.selectAll('.paperbuzz-mini-total')
                 .text(total);
     }
 
@@ -447,15 +448,15 @@ function PaperbuzzViz(options) {
         viz.bars = viz.svg.append("g");
 
         viz.svg.append("g")
-            .attr("class", "x axis")
+            .attr("class", "x paperbuzz-axis")
             .attr("transform", "translate(0," + (viz.height - 1) + ")");
 
         viz.svg.append("g")
-            .attr("class", "y axis");
+            .attr("class", "y paperbuzz-axis");
 
         
         viz.tip = d3.tip()
-                .attr('class', 'paperbuzzTooltip')
+                .attr('class', 'paperbuzz-tooltip')
                 .html(function(d) { return 'Count: ' + d.count + "<br>" + 'Date: ' + d.date; });
         viz.tip.offset([-10, 0]); // make room for the little triangle
         viz.svg.call(viz.tip);
@@ -523,12 +524,12 @@ function PaperbuzzViz(options) {
         // TODO: these transitions could use a little work
         var barWidth = Math.max((viz.width/(timeInterval.range(pub_date, end_date).length + 1)) - 2, 1);
 
-        var bars = viz.bars.selectAll(".bar")
+        var bars = viz.bars.selectAll(".paperbuzz-bar")
             .data(level_data, function(d) { return getDate(level, d); });
 
         bars
             .enter().append("rect")
-            .attr("class", function(d) { return "bar " + viz.z((level == 'day' ? d3.timeWeek(getDate(level, d)) : d.year)); })
+            .attr("class", function(d) { return "paperbuzz-bar " + viz.z((level == 'day' ? d3.timeWeek(getDate(level, d)) : d.year)); })
             .attr("x", function(d) { return viz.x(getDate(level, d)) + 2; }) // padding of 2, 1 each 
             .attr("y", function(d) { return viz.y(d.count) } )
             .attr("width", barWidth)
@@ -541,7 +542,7 @@ function PaperbuzzViz(options) {
             .remove();
 
         viz.svg
-            .select(".x.axis")
+            .select(".x.paperbuzz-axis")
             .call((xAxis)
                 .tickFormat(d3.timeFormat(xFormat)))
             .selectAll("text")	
@@ -553,7 +554,7 @@ function PaperbuzzViz(options) {
 
         viz.svg
             .transition().duration(1000)
-            .select(".y.axis")
+            .select(".y.paperbuzz-axis")
             .call(yAxis);
     }
 
