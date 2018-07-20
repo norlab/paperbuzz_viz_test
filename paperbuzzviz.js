@@ -11,63 +11,45 @@ function PaperbuzzViz(options) {
     $ = options.jQuery || $;
 
     // Init basic options
-    var baseUrl = options.baseUrl;
-    var hasIcon = options.hasIcon;
-    var sources = [];
-    var eventcount = [];
-    var eventdate = [];
-    var eventsource =[];
     var minItems_ = options.minItemsToShowGraph;
     var showTitle = options.showTitle;
     var showMini = options.showMini;
+
     var formatNumber_ = d3.format(",d");
     var parseDate = d3.timeParse('%Y-%m-%d');
+
     var graphheight = options.graphheight;
     var graphwidth = options.graphwidth;
 
     var data = options.paperbuzzStatsJson;
-    //console.log(data);
-    
-    // Will choose pub date based on online pub, print pub, or issued. If no month or day defaults to 01
-    if (data.metadata['published-online']) {
-        var year = data.metadata["published-online"]["date-parts"][0][0];
-        if (data.metadata["published-online"]["date-parts"][0][1]) {
-            var month = data.metadata["published-online"]["date-parts"][0][1];
-        } else {var month = 01;
-        }
-        if (data.metadata["published-online"]["date-parts"][0][2]) {
-            var day = data.metadata["published-online"]["date-parts"][0][2];
-        } else {var day = 01;
-        }
-        var published_date = year+"-"+month+"-"+day;
-    } else if (data.metadata['published-print']) {
-        var year = data.metadata["published-print"]["date-parts"][0][0];
-        if (data.metadata["published-print"]["date-parts"][0][1]) {
-            var month = data.metadata["published-print"]["date-parts"][0][1];
-        } else {var month = 01;
-        }
-        if (data.metadata["published-print"]["date-parts"][0][2]) {
-            var day = data.metadata["published-print"]["date-parts"][0][2];
-        } else {var day = 01;
-        }
-        var published_date = year+"-"+month+"-"+day;
-    } else {
-        var year = data.metadata["issued"]["date-parts"][0][0];
-        if (data.metadata["issued"]["date-parts"][0][1]) {
-            var month = data.metadata["issued"]["date-parts"][0][1];
-        } else {var month = 01;
-        }
-        if (data.metadata["issued"]["date-parts"][0][2]) {
-            var day = data.metadata["issued"]["date-parts"][0][2];
-        } else {var day = 01;
-        }
-        var published_date = year+"-"+month+"-"+day;
-    }
-    
-    // extract publication date
-    var pub_date = parseDate(published_date);
+    var sources = data.altmetrics_sources;
 
-    //console.log(pub_date);
+    var published_date = options.published_date || false;
+        
+    if (published_date) {
+        // accept published date provided
+    // Will choose pub date based on online pub, print pub, or issued. If no month or day defaults to 01
+    } else if (data.metadata['published-online']) {
+        published_date = data.metadata["published-online"]["date-parts"][0];
+    } else if (data.metadata['published-print']) {
+        published_date = data.metadata["published-print"]["date-parts"][0];
+    } else if (published_date = data.metadata["issued"]) {
+        published_date = data.metadata["issued"]["date-parts"][0];
+    } else {
+        published_date = [1969, 1, 1]; // TODO: Better handling if no date is found
+    }
+
+    // Fill in the month and day with 1 if they are empty
+    if (published_date.length == 1) {
+        published_date.push(1)
+    }
+    if (published_date.length == 2) {
+        published_date.push(1)
+    }
+
+    // extract publication date
+    var pub_date = parseDate(published_date.join('-'));        
+    
 
     var vizDiv;
     // Get the Div where the viz should go (default to one with ID "paperbuzz')
@@ -82,113 +64,66 @@ function PaperbuzzViz(options) {
 
     // to track if any metrics have been found
     var metricsFound_;
-
-    sources = data.altmetrics_sources
-
-    if (showMini) {
-
-        //vizDiv.select("#loading").remove();
-            
-        var miniViz = d3.select("body").append("svg")
-                                        .attr('height', "100%")
-                                        .attr("width", "100%");
-        //console.log(sources);
-        miniViz.selectAll("rect")
-                .data(sources)
-                .enter().append("rect")
-                        .attr("fill", "#CECCCC")
-                        .attr("height", "90")
-                        .attr("width", "100%")
-                        .attr("x", "0")
-                        .attr("y", "0");
-
-        miniViz.append("text")
-                .attr("x", "10")
-                .attr("y", "20")
-                .attr("class", "miniViz-title")
-                .html('<a href="http://dx.doi.org/' + data.doi + '">' + data.metadata.title + '</a>');
-
-        var total = 0;
-            for (i = 0; i < data.altmetrics_sources.length; i++) { 
-                total += data.altmetrics_sources[i].events_count;
-            }
-            
-        function calculateYears(pub_date) {
-            var years = (new Date()).getFullYear() - pub_date.getFullYear();
-            return Math.ceil(years);
-            }
-                 
-        miniViz.append("text")
-                .attr("x", "10")
-                .attr("y", "70")
-                .attr("class", "miniViz-total")
-                .text(total);
-
-        miniViz.append("text")
-                .attr("x", "100")
-                .attr("y", "50")
-                .attr("class", "miniViz-text")
-                .text('Online mentions over');
-
-        miniViz.append("text")
-                .attr("x", "100")
-                .attr("y", "70")
-                .attr("class", "miniViz-text")
-                .text(calculateYears(pub_date) + ' year(s)');
-
-
-        var total = 0;
-        for (i = 0; i < data.altmetrics_sources.length; i++) { 
-            console.log(i);
-            var x = 230 + (i*40);
-            var y = 33;
-
-            miniViz.append("foreignObject")
-                .attr("class", "miniViz-count")
-                .attr("id", "miniViz-count-" + data.altmetrics_sources[i].source_id)
-                .attr("x", x)
-                .attr("y", y)
-                .html('<i class="icon-' + data.altmetrics_sources[i].source_id + '"></i>' + " ");
-
-            miniViz.append("text")
-                .attr("x", x)
-                .attr("y", 70)
-                .attr("class", "miniViz-text")
-                .text(data.altmetrics_sources[i].events_count);
-        }
-                
-       
-    }
+    
 
      /**
      * Initialize the visualization.
      * NB: needs to be accessible from the outside for initialization
      */
     this.initViz = function() {
+
         vizDiv.select("#loading").remove();
 
         if (showTitle) {
             vizDiv.append("a")
                 .attr('href', 'http://dx.doi.org/' + data.doi)
-                .attr("class", "title")
+                .attr("class", "paperbuzz-title")
                 .text(data.metadata.title);
         }
 
         vizDiv.append("br");
         
-        
-        // loop through sources
-        sources.forEach(function(source) {
-            metricsFound_ = true;
-            addSourceRow(vizDiv, source);
-        });
-
-        if (!metricsFound_) {
+        if (sources.length > 0) {
+            if (showMini || !hasSVG_) {
+                addMiniViz(vizDiv, sources);
+            } else {
+                // loop through sources
+                sources.forEach(function(source) {
+                    // metricsFound_ = true;
+                    addSourceRow(vizDiv, source);
+                });
+            }
+           metricsFound_ = true;
+        } else {
             vizDiv.append("p")
-                .attr("class", "muted")
+                .attr("class", "paperbuzz-muted")
                 .text("No metrics found.");
         }
     };
+
+    var addMiniViz = function(vizDiv, sources) {
+
+        miniDiv = vizDiv.append('div')
+                        .attr('id', 'paperbuzz-mini');
+
+        miniDiv.append('span')
+            .attr('class', 'paperbuzz-mini-total')
+
+        var total = 0;
+        sources.forEach(function(source) {
+            miniDiv.append('div')
+                .attr('class', 'paperbuzz-mini-source')
+                .append('i')
+                .attr('class', 'icon-' + source.source_id)
+                .append('span')
+                .attr('class', 'paperbuzz-mini-count')
+                .text(source.events_count);
+            total += source.events_count
+        });
+
+        miniDiv.selectAll('.paperbuzz-mini-total')
+                .text(total);
+    }
 
      /**
      * Build each article level statistics source.
@@ -328,7 +263,7 @@ function PaperbuzzViz(options) {
                     $levelControlsDiv.append("a")
                         .attr("href", "javascript:void(0)")
                         .classed("paperbuzz-control", true)
-                        .classed("disabled", !showDaily)
+                        // .classed("disabled", !showDaily)
                         .classed("active", (level == 'day'))
                         .text("daily (first 30)")
                         .on("click", function() {
@@ -346,7 +281,7 @@ function PaperbuzzViz(options) {
                     $levelControlsDiv.append("a")
                         .attr("href", "javascript:void(0)")
                         .classed("paperbuzz-control", true)
-                        .classed("disabled", !showMonthly || !showYearly)
+                        // .classed("disabled", !showMonthly || !showYearly)
                         .classed("active", (level == 'month'))
                         .text("monthly")
                         .on("click", function() { if (showMonthly && !$(this).hasClass('active')) {
@@ -365,7 +300,7 @@ function PaperbuzzViz(options) {
                     $levelControlsDiv.append("a")
                         .attr("href", "javascript:void(0)")
                         .classed("paperbuzz-control", true)
-                        .classed("disabled", !showYearly || !showMonthly)
+                        // .classed("disabled", !showYearly || !showMonthly)
                         .classed("active", (level == 'year'))
                         .text("yearly")
                         .on("click", function() {
@@ -507,15 +442,15 @@ function PaperbuzzViz(options) {
         viz.bars = viz.svg.append("g");
 
         viz.svg.append("g")
-            .attr("class", "x axis")
+            .attr("class", "x paperbuzz-axis")
             .attr("transform", "translate(0," + (viz.height - 1) + ")");
 
         viz.svg.append("g")
-            .attr("class", "y axis");
+            .attr("class", "y paperbuzz-axis");
 
         
         viz.tip = d3.tip()
-                .attr('class', 'paperbuzzTooltip')
+                .attr('class', 'paperbuzz-tooltip')
                 .html(function(d) { return 'Count: ' + d.count + "<br>" + 'Date: ' + d.date; });
         viz.tip.offset([-10, 0]); // make room for the little triangle
         viz.svg.call(viz.tip);
@@ -583,12 +518,15 @@ function PaperbuzzViz(options) {
         // TODO: these transitions could use a little work
         var barWidth = Math.max((viz.width/(timeInterval.range(pub_date, end_date).length + 1)) - 2, 1);
 
-        var bars = viz.bars.selectAll(".bar")
+        var bars = viz.bars.selectAll(".paperbuzz-bar")
             .data(level_data, function(d) { return getDate(level, d); });
 
         bars
             .enter().append("rect")
-            .attr("class", function(d) { return "bar " + viz.z((level == 'day' ? d3.timeWeek(getDate(level, d)) : d.year)); })
+            .attr("class", function(d) { 
+                var bartype = (level == 'day' ? d3.timeWeek(getDate(level, d)) : getDate(level, d).getFullYear());
+                return "paperbuzz-bar " + viz.z(bartype); 
+            })
             .attr("x", function(d) { return viz.x(getDate(level, d)) + 2; }) // padding of 2, 1 each 
             .attr("y", function(d) { return viz.y(d.count) } )
             .attr("width", barWidth)
@@ -601,7 +539,7 @@ function PaperbuzzViz(options) {
             .remove();
 
         viz.svg
-            .select(".x.axis")
+            .select(".x.paperbuzz-axis")
             .call((xAxis)
                 .tickFormat(d3.timeFormat(xFormat)))
             .selectAll("text")	
@@ -613,7 +551,7 @@ function PaperbuzzViz(options) {
 
         viz.svg
             .transition().duration(1000)
-            .select(".y.axis")
+            .select(".y.paperbuzz-axis")
             .call(yAxis);
     }
 
